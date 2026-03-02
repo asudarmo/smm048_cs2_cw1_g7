@@ -90,7 +90,8 @@ packages <- c(
   "labelled",    # for adding and managing variable labels
   "psych",      #  for exploratory factor analysis (EFA)
   "GPArotation", # for factor rotation methods (e.g., varimax, oblimin, promax)
-  "ggplot2"
+  "ggplot2",   # for data visualisation using the grammar of graphics
+  "insuranceData"   # for actuarial and insurance-related example datasets
 )
 
 # Check which packages are already installed
@@ -107,7 +108,7 @@ lapply(packages, library, character.only = TRUE)
 
 # Factor Analysis
 
-```{r Q1 data, echo=knitr::is_html_output(), include=TRUE}
+```{r Q1_data, echo=knitr::is_html_output(), include=TRUE}
 ## R Markdown
 
 data1 <- read.table("dataset1.txt", header = TRUE)
@@ -144,7 +145,6 @@ var_label(data1_clean$X25) <- "Will not probe deeply into a subject"
 
 An exploratory factor analysis (EFA) was conducted on the 25 personality items measured on a 6-point Likert scale. The dataset contained some missing value(NA), which
 are handled using deletion. In odrer to determine the number of factors, two methods(PCA vs FA) were compared to improve explicity. 
-.....
 
 ```{r Q1-2, echo=knitr::is_html_output(), include=TRUE}
 summary(data1_clean)
@@ -157,7 +157,7 @@ pve=pr.var/sum(pr.var)
 plot(
   pve,
   xlab = "principal Component",
-  Ylab = "Proportion of Variance Explained",
+  ylab = "Proportion of Variance Explained",
   ylim = c(0, 1),
   type = "b"
 )
@@ -165,7 +165,7 @@ plot(
 plot(
   cumsum(pve),
   xlab = "principal Component",
-  Ylab = "Cummulative Proportion of Variance Explained",
+  ylab = "Cummulative Proportion of Variance Explained",
   ylim = c(0, 1),
   type = "b"
 )
@@ -177,8 +177,8 @@ plot(en$values, type = "o")
 
 fa.parallel(
   data1_clean,
-  fa = "both",
-  main = "Parallel Analysis"
+  fa = "fa",
+  main = "Factor Analysis"
 )
 
 
@@ -201,7 +201,88 @@ print(result2$loadings, cutoff=0)
 
 # copula analysis 
 
+```{r Q2 data, echo=knitr::is_html_output(), include=TRUE}
+data(dataCar)
+names(dataCar)
+
+num_data2 <- dataCar$numclaims
+cost_data2 <- dataCar$claimcst0
+
+# option1 num ~ poisson
+
+
+
+
+```
+
 # principal component Analysis
+
+```{r Q3 data, echo=knitr::is_html_output(), include=TRUE}
+## R Markdown
+
+data3 <- read.table("dataset3.txt", header = TRUE)
+data3 <- na.omit(data3)
+
+pr.out <- prcomp(data3, scale.  = TRUE)
+
+pr.var <- pr.out$sdev^2
+pve <- pr.var / sum(pr.var)
+
+
+biplot(pr.out, scale = 0)
+
+cumsum(pve)
+
+plot(
+  pve,
+  xlab = "principal Component",
+  ylab = "Proportion of Variance Explained",
+  ylim = c(0, 1),
+  type = "b"
+)
+
+plot(
+  cumsum(pve),
+  xlab = "principal Component",
+  ylab = "Cummulative Proportion of Variance Explained",
+  ylim = c(0, 1),
+  type = "b"
+)
+
+round(pr.out$rotation, 2)
+
+fa.parallel(
+  data3,
+  fa = "pc",
+  main = "Principal Analysis"
+)
+
+
+
+
+# install.packages("PCAmixdata")
+# library(PCAmixdata)
+# data("gironde")
+# head(gironde$housing)
+# gironde
+# split <- splitmix(gironde$housing)
+# x1 <- split$X.quanti
+# x2 <- split$X.quali
+# res.pcamix <- PCAmix(X.quanti = x1, X.quali = x2, rename.level = TRUE, graph = FALSE)
+# res.pcamix$eig
+# 
+# par(mfrow=c(2,2))
+# plot(res.pcamix, choice = "ind", coloring.ind = x2$houses, label = FALSE,
+#      posleg = "bottomright", main ="(a) Observations")
+# 15
+# plot(res.pcamix, choice = "levels", xlim = c(-1.5,2.5), main = "(b) Levels")
+# plot(res.pcamix, choice = "cor", main = "(c) Numerical variables")
+# plot(res.pcamix, choice = "sqload", coloring.var = T, leg = TRUE,
+#      posleg = "topright", main = "(d) All variables")
+
+```
+
+
 
 # Time seires
 

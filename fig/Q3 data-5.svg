@@ -1,0 +1,84 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='432.00pt' height='288.00pt' viewBox='0 0 432.00 288.00'>
+<g class='svglite'>
+<defs>
+  <style type='text/css'><![CDATA[
+    .svglite line, .svglite polyline, .svglite polygon, .svglite path, .svglite rect, .svglite circle {
+      fill: none;
+      stroke: #000000;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-miterlimit: 10.00;
+    }
+    .svglite text {
+      white-space: pre;
+    }
+    .svglite g.glyphgroup path {
+      fill: inherit;
+      stroke: none;
+    }
+  ]]></style>
+</defs>
+<rect width='100%' height='100%' style='stroke: none; fill: #FFFFFF;'/>
+<defs>
+  <clipPath id='cpMC4wMHw0MzIuMDB8MC4wMHwyODguMDA='>
+    <rect x='0.00' y='0.00' width='432.00' height='288.00' />
+  </clipPath>
+</defs>
+<g clip-path='url(#cpMC4wMHw0MzIuMDB8MC4wMHwyODguMDA=)'>
+</g>
+<defs>
+  <clipPath id='cpNTkuMDR8NDAxLjc2fDU5LjA0fDIxNC41Ng=='>
+    <rect x='59.04' y='59.04' width='342.72' height='155.52' />
+  </clipPath>
+</defs>
+<g clip-path='url(#cpNTkuMDR8NDAxLjc2fDU5LjA0fDIxNC41Ng==)'>
+<circle cx='154.06' cy='93.28' r='2.70' style='stroke-width: 0.75;' />
+<circle cx='295.44' cy='85.14' r='2.70' style='stroke-width: 0.75;' />
+<circle cx='135.60' cy='161.13' r='2.70' style='stroke-width: 0.75;' />
+<circle cx='129.40' cy='125.25' r='2.70' style='stroke-width: 0.75;' />
+<circle cx='131.27' cy='123.62' r='2.70' style='stroke-width: 0.75;' />
+<circle cx='223.06' cy='148.81' r='2.70' style='stroke-width: 0.75;' />
+<circle cx='226.06' cy='145.38' r='2.70' style='stroke-width: 0.75;' />
+<circle cx='234.68' cy='91.89' r='2.70' style='stroke-width: 0.75;' />
+<circle cx='231.82' cy='151.83' r='2.70' style='stroke-width: 0.75;' />
+<circle cx='218.31' cy='126.26' r='2.70' style='stroke-width: 0.75;' />
+<circle cx='235.32' cy='144.99' r='2.70' style='stroke-width: 0.75;' />
+</g>
+<g clip-path='url(#cpMC4wMHw0MzIuMDB8MC4wMHwyODguMDA=)'>
+<line x1='131.23' y1='214.56' x2='329.57' y2='214.56' style='stroke-width: 0.75;' />
+<line x1='131.23' y1='214.56' x2='131.23' y2='221.76' style='stroke-width: 0.75;' />
+<line x1='230.40' y1='214.56' x2='230.40' y2='221.76' style='stroke-width: 0.75;' />
+<line x1='329.57' y1='214.56' x2='329.57' y2='221.76' style='stroke-width: 0.75;' />
+<text x='131.23' y='240.48' text-anchor='middle' style='font-size: 12.00px; font-family: "Arial";' textLength='20.67px' lengthAdjust='spacingAndGlyphs'>-0.5</text>
+<text x='230.40' y='240.48' text-anchor='middle' style='font-size: 12.00px; font-family: "Arial";' textLength='16.67px' lengthAdjust='spacingAndGlyphs'>0.0</text>
+<text x='329.57' y='240.48' text-anchor='middle' style='font-size: 12.00px; font-family: "Arial";' textLength='16.67px' lengthAdjust='spacingAndGlyphs'>0.5</text>
+<line x1='59.04' y1='181.80' x2='59.04' y2='91.80' style='stroke-width: 0.75;' />
+<line x1='59.04' y1='181.80' x2='51.84' y2='181.80' style='stroke-width: 0.75;' />
+<line x1='59.04' y1='136.80' x2='51.84' y2='136.80' style='stroke-width: 0.75;' />
+<line x1='59.04' y1='91.80' x2='51.84' y2='91.80' style='stroke-width: 0.75;' />
+<text transform='translate(41.76,181.80) rotate(-90)' text-anchor='middle' style='font-size: 12.00px; font-family: "Arial";' textLength='20.67px' lengthAdjust='spacingAndGlyphs'>-0.5</text>
+<text transform='translate(41.76,136.80) rotate(-90)' text-anchor='middle' style='font-size: 12.00px; font-family: "Arial";' textLength='16.67px' lengthAdjust='spacingAndGlyphs'>0.0</text>
+<text transform='translate(41.76,91.80) rotate(-90)' text-anchor='middle' style='font-size: 12.00px; font-family: "Arial";' textLength='16.67px' lengthAdjust='spacingAndGlyphs'>0.5</text>
+<polygon points='59.04,214.56 401.76,214.56 401.76,59.04 59.04,59.04 ' style='stroke-width: 0.75;' />
+<text x='230.40' y='34.67' text-anchor='middle' style='font-size: 14.40px; font-weight: bold; font-family: "Arial";' textLength='187.94px' lengthAdjust='spacingAndGlyphs'>Loadings plot (PC1 vs PC2)</text>
+<text x='230.40' y='269.28' text-anchor='middle' style='font-size: 12.00px; font-family: "Arial";' textLength='65.38px' lengthAdjust='spacingAndGlyphs'>PC1 loading</text>
+<text transform='translate(12.96,136.80) rotate(-90)' text-anchor='middle' style='font-size: 12.00px; font-family: "Arial";' textLength='65.38px' lengthAdjust='spacingAndGlyphs'>PC2 loading</text>
+</g>
+<g clip-path='url(#cpNTkuMDR8NDAxLjc2fDU5LjA0fDIxNC41Ng==)'>
+<text x='154.06' y='86.08' text-anchor='middle' style='font-size: 9.60px; font-family: "Arial";' textLength='31.44px' lengthAdjust='spacingAndGlyphs'>Income</text>
+<text x='295.44' y='77.94' text-anchor='middle' style='font-size: 9.60px; font-family: "Arial";' textLength='17.06px' lengthAdjust='spacingAndGlyphs'>Age</text>
+<text x='135.60' y='153.93' text-anchor='middle' style='font-size: 9.60px; font-family: "Arial";' textLength='70.88px' lengthAdjust='spacingAndGlyphs'>Spending_Score</text>
+<text x='129.40' y='118.05' text-anchor='middle' style='font-size: 9.60px; font-family: "Arial";' textLength='91.11px' lengthAdjust='spacingAndGlyphs'>Shopping_Frequency</text>
+<text x='131.27' y='116.42' text-anchor='middle' style='font-size: 9.60px; font-family: "Arial";' textLength='61.28px' lengthAdjust='spacingAndGlyphs'>Brand_Loyalty</text>
+<text x='223.06' y='141.61' text-anchor='middle' style='font-size: 9.60px; font-family: "Arial";' textLength='62.55px' lengthAdjust='spacingAndGlyphs'>Website_Visits</text>
+<text x='226.06' y='138.18' text-anchor='middle' style='font-size: 9.60px; font-family: "Arial";' textLength='117.22px' lengthAdjust='spacingAndGlyphs'>Social_Media_Engagement</text>
+<text x='234.68' y='84.69' text-anchor='middle' style='font-size: 9.60px; font-family: "Arial";' textLength='78.33px' lengthAdjust='spacingAndGlyphs'>Email_Open_Rate</text>
+<text x='231.82' y='144.63' text-anchor='middle' style='font-size: 9.60px; font-family: "Arial";' textLength='126.83px' lengthAdjust='spacingAndGlyphs'>Customer_Satisfaction_Score</text>
+<text x='218.31' y='119.06' text-anchor='middle' style='font-size: 9.60px; font-family: "Arial";' textLength='85.23px' lengthAdjust='spacingAndGlyphs'>Promotions_Utilized</text>
+<text x='235.32' y='137.79' text-anchor='middle' style='font-size: 9.60px; font-family: "Arial";' textLength='108.70px' lengthAdjust='spacingAndGlyphs'>Cart_Abandonment_Rate</text>
+<line x1='59.04' y1='136.80' x2='401.76' y2='136.80' style='stroke-width: 0.75; stroke-dasharray: 4.00,4.00;' />
+<line x1='230.40' y1='214.56' x2='230.40' y2='59.04' style='stroke-width: 0.75; stroke-dasharray: 4.00,4.00;' />
+</g>
+</g>
+</svg>
