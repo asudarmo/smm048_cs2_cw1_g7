@@ -209,7 +209,41 @@ num_data2 <- dataCar$numclaims
 cost_data2 <- dataCar$claimcst0
 
 # option1 num ~ poisson
+#cs2 cw1 q2 copula
+install.packages("insuranceData")
+library(GJRM)
+library(gamlss)
+library(gamlss.dist)
+library(insuranceData)
+data(dataCar)
 
+data_cop <- subset(dataCar, numclaims > 0 & claimcst0 > 0 & is.finite(claimcst0))
+eq1 <- numclaims ~ 1
+eq2 <- claimcst0 ~ 1
+
+#claim frequency distribution
+#use offset since exposure is not constant, since glm uses log link function so offset = log(exposure)
+#truncated frequency
+tpo <- gamlss(eq1, family = "tP", data = data_cop, offset = log(dataCar$exposure))
+tnbi <- gamlss(eq1, family = "tNBI", data = data_cop, offset = log(dataCar$exposure))
+
+AIC(tpo,tnbi)
+BIC(tpo,tnbi)
+
+summary(tnbi)
+conv.check(tnbi)
+res.check(tnbi)
+
+#claim severity distribution
+ln <- gamlss(eq2, family = "LN", data = data_cop)
+ga <- gamlss(eq2, family = "GA", data = data_cop)
+
+AIC(ln, ga)
+BIC(ln, ga)
+
+summary(ln)
+conv.check(ln)
+res.check(ln)
 
 
 
@@ -285,5 +319,6 @@ fa.parallel(
 
 
 # Time seires
+
 
 
