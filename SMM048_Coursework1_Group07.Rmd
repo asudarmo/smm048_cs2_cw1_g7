@@ -206,66 +206,63 @@ print(result2$loadings, cutoff=0)
 # copula analysis 
 
 ```{r Q2 data, echo=knitr::is_html_output(), include=TRUE}
-library(insuranceData)
-library(GJRM)
+#library(insuranceData)
+#library(GJRM)
 
-data(dataCar)
-names(dataCar)
+#data(dataCar)
+#names(dataCar)
 
-num_data2 <- dataCar$numclaims
-cost_data2 <- dataCar$claimcst0
+#num_data2 <- dataCar$numclaims
+#cost_data2 <- dataCar$claimcst0
 ```
 
 ```{r}
-# option1 num ~ poisson
-#cs2 cw1 q2 copula
+install.packages("insuranceData")
+library(GJRM)
+library(insuranceData)
+data(dataCar)
 
-data_cop <- subset(dataCar, numclaims > 0 & claimcst0 > 0 & is.finite(claimcst0))
+data_cop <- subset(dataCar,
+                   numclaims > 0 & claimcst0 > 0 & 
+			 is.finite(claimcst0) & is.finite(exposure) & 
+	   	   	 exposure > 0)
+
 eq1 <- numclaims ~ 1
 eq2 <- claimcst0 ~ 1
 
 #claim frequency distribution
-#use offset since exposure is not constant, since glm uses log link function so offset = log(exposure)
+#use offset since exposure is not constant
 #truncated frequency
-tpo <- gamlss(list(eq1), family = "tP", data = data_cop, offset = log(data_cop$exposure))
-tnbi <- gamlss(list(eq1), family = "tNBI", data = data_cop, offset = log(data_cop$exposure))
 
-print(AIC(tpo,tnbi))
-print(BIC(tpo,tnbi))
+tPfreq <- GJRM::gamlss(list(eq1), family = "tP", data = data_cop, offset = data_cop$exposure)
+tNBIfreq <- GJRM::gamlss(list(eq1), family = "tNBI", data = data_cop, offset = data_cop$exposure)
+tNBIIfreq <- GJRM::gamlss(list(eq1), family = "tNBII", data = data_cop, offset = data_cop$exposure)
+tPIGfreq <- GJRM::gamlss(list(eq1), family = "tPIG", data = data_cop, offset = data_cop$exposure) 
 
-summary(tnbi)
-conv.check(tnbi)
-res.check(tnbi)
-```
+AIC(tPfreq, tNBIfreq, tNBIIfreq, tPIGfreq)
+BIC(tPfreq, tNBIfreq, tNBIIfreq, tPIGfreq)
 
-
-```{r}
-summary(tpo)
-conv.check(tpo)
-res.check(tpo)
-```
-
-
-```{r}
+conv.check(tPfreq)
+res.check(tPfreq)
+summary(tPfreq)
 
 #claim severity distribution
-ln <- gamlss(list(eq2), family = "LN", data = data_cop)
-ga <- gamlss(list(eq2), family = "GA", data = data_cop)
 
-AIC(ln, ga)
-BIC(ln, ga)
+LNsev <- GJRM::gamlss(list(eq2), family="LN", data=data_cop)
+IGsev <- GJRM::gamlss(list(eq2), family="IG", data=data_cop)
+GAsev <- GJRM::gamlss(list(eq2), family="GA", data=data_cop)
 
-summary(ln)
-conv.check(ln)
-res.check(ln)
-```
+WEIsev <- GJRM::gamlss(list(eq2), family="WEI", data=data_cop)
+SMsev <- GJRM::gamlss(list(eq2), family="SM", data=data_cop)
+FISKsev <- GJRM::gamlss(list(eq2), family="FISK", data=data_cop)
+DAGUMsev <- GJRM::gamlss(list(eq2), family="DAGUM", data=data_cop)
 
+AIC(DAGUMsev, LNsev, WEIsev, IGsev, GAsev, SMsev, FISKsev)
+BIC(DAGUMsev, LNsev, WEIsev, IGsev, GAsev, SMsev, FISKsev)
 
-```{r}
-summary(ga)
-conv.check(ga)
-res.check(ga)
-```
+conv.check(IGsev)
+res.check(IGsev)
+summary(IGsev)
 
 
 # principal component Analysis
@@ -366,6 +363,7 @@ plot_ly(scores3,
 
 
 # Time seires
+
 
 
 
