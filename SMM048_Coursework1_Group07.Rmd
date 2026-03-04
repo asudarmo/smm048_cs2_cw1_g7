@@ -202,20 +202,19 @@ print(result2$loadings, cutoff=0)
 # copula analysis 
 
 ```{r Q2 data, echo=knitr::is_html_output(), include=TRUE}
+library(insuranceData)
+library(GJRM)
+
 data(dataCar)
 names(dataCar)
 
 num_data2 <- dataCar$numclaims
 cost_data2 <- dataCar$claimcst0
+```
 
+```{r}
 # option1 num ~ poisson
 #cs2 cw1 q2 copula
-install.packages("insuranceData")
-library(GJRM)
-library(gamlss)
-library(gamlss.dist)
-library(insuranceData)
-data(dataCar)
 
 data_cop <- subset(dataCar, numclaims > 0 & claimcst0 > 0 & is.finite(claimcst0))
 eq1 <- numclaims ~ 1
@@ -224,19 +223,30 @@ eq2 <- claimcst0 ~ 1
 #claim frequency distribution
 #use offset since exposure is not constant, since glm uses log link function so offset = log(exposure)
 #truncated frequency
-tpo <- gamlss(eq1, family = "tP", data = data_cop, offset = log(dataCar$exposure))
-tnbi <- gamlss(eq1, family = "tNBI", data = data_cop, offset = log(dataCar$exposure))
+tpo <- gamlss(list(eq1), family = "tP", data = data_cop, offset = log(data_cop$exposure))
+tnbi <- gamlss(list(eq1), family = "tNBI", data = data_cop, offset = log(data_cop$exposure))
 
-AIC(tpo,tnbi)
-BIC(tpo,tnbi)
+print(AIC(tpo,tnbi))
+print(BIC(tpo,tnbi))
 
 summary(tnbi)
 conv.check(tnbi)
 res.check(tnbi)
+```
+
+
+```{r}
+summary(tpo)
+conv.check(tpo)
+res.check(tpo)
+```
+
+
+```{r}
 
 #claim severity distribution
-ln <- gamlss(eq2, family = "LN", data = data_cop)
-ga <- gamlss(eq2, family = "GA", data = data_cop)
+ln <- gamlss(list(eq2), family = "LN", data = data_cop)
+ga <- gamlss(list(eq2), family = "GA", data = data_cop)
 
 AIC(ln, ga)
 BIC(ln, ga)
@@ -244,10 +254,15 @@ BIC(ln, ga)
 summary(ln)
 conv.check(ln)
 res.check(ln)
-
-
-
 ```
+
+
+```{r}
+summary(ga)
+conv.check(ga)
+res.check(ga)
+```
+
 
 # principal component Analysis
 
