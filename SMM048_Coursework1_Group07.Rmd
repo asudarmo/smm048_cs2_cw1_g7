@@ -92,6 +92,7 @@ packages <- c(
   "GPArotation", # for factor rotation methods (e.g., varimax, oblimin, promax)
   "ggplot2",   # for data visualisation using the grammar of graphics
   "insuranceData",   # for actuarial and insurance-related example datasets
+  "GJRM", # for copula regressions
   "corrplot", # for correlation hitmap method
   "GGally",
   "reshape2",
@@ -205,21 +206,10 @@ print(result2$loadings, cutoff=0)
 
 # copula analysis 
 
-```{r Q2 data, echo=knitr::is_html_output(), include=TRUE}
-library(insuranceData)
-library(GJRM)
+```{r Q2, echo=knitr::is_html_output(), include=TRUE}
+# library(GJRM)
+# library(insuranceData)
 
-data(dataCar)
-names(dataCar)
-
-num_data2 <- dataCar$numclaims
-cost_data2 <- dataCar$claimcst0
-```
-
-```{r}
-install.packages("insuranceData")
-library(GJRM)
-library(insuranceData)
 data(dataCar)
 
 data_cop <- subset(dataCar,
@@ -239,12 +229,19 @@ tNBIfreq <- GJRM::gamlss(list(eq1), family = "tNBI", data = data_cop, offset = d
 tNBIIfreq <- GJRM::gamlss(list(eq1), family = "tNBII", data = data_cop, offset = data_cop$exposure)
 tPIGfreq <- GJRM::gamlss(list(eq1), family = "tPIG", data = data_cop, offset = data_cop$exposure) 
 
-AIC(tPfreq, tNBIfreq, tNBIIfreq, tPIGfreq)
-BIC(tPfreq, tNBIfreq, tNBIIfreq, tPIGfreq)
+print(AIC(tPfreq, tNBIfreq, tNBIIfreq, tPIGfreq))
+print(BIC(tPfreq, tNBIfreq, tNBIIfreq, tPIGfreq))
+```
 
+
+```{r}
 conv.check(tPfreq)
 res.check(tPfreq)
 summary(tPfreq)
+```
+
+
+```{r}
 
 #claim severity distribution
 
@@ -257,17 +254,30 @@ SMsev <- GJRM::gamlss(list(eq2), family="SM", data=data_cop)
 FISKsev <- GJRM::gamlss(list(eq2), family="FISK", data=data_cop)
 DAGUMsev <- GJRM::gamlss(list(eq2), family="DAGUM", data=data_cop)
 
-AIC(DAGUMsev, LNsev, WEIsev, IGsev, GAsev, SMsev, FISKsev)
-BIC(DAGUMsev, LNsev, WEIsev, IGsev, GAsev, SMsev, FISKsev)
+print(AIC(DAGUMsev, LNsev, WEIsev, IGsev, GAsev, SMsev, FISKsev))
+print(BIC(DAGUMsev, LNsev, WEIsev, IGsev, GAsev, SMsev, FISKsev))
+```
+
+
+```{r}
 
 conv.check(IGsev)
 res.check(IGsev)
 summary(IGsev)
+```
 
+
+```{r}
 
 ###fitting copula
 ZTPIGN <- gjrm(list(eq1, eq2, ~1, ~1), data = data_cop, margin = c("tP", "IG"), model = "B", copula = "N")
 ZTPIGT <- gjrm(list(eq1, eq2, ~1, ~1), data = data_cop, margin = c("tP", "IG"), model = "B", copula = "T")
+```
+
+
+```{r}
+print(AIC(ZTPIGN, ZTPIGT))
+```
 
 
 # principal component Analysis
