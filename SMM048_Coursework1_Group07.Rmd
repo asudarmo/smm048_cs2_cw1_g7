@@ -35,6 +35,7 @@ output:
 ```{=latex}
 \newpage
 ```
+qqqqq
 
 ```{r setup, include=FALSE}
 dir.create("fig", showWarnings = FALSE)
