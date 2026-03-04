@@ -242,6 +242,16 @@ summary(tPfreq)
 ```
 
 
+TODO: Marcella put her analysis results here
+
+it's using markdown syntax.
+
+Example latex:
+$$
+x+1
+$$
+
+
 ```{r}
 
 #claim severity distribution
