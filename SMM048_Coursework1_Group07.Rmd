@@ -206,14 +206,14 @@ print(result2$loadings, cutoff=0)
 # copula analysis 
 
 ```{r Q2 data, echo=knitr::is_html_output(), include=TRUE}
-#library(insuranceData)
-#library(GJRM)
+library(insuranceData)
+library(GJRM)
 
-#data(dataCar)
-#names(dataCar)
+data(dataCar)
+names(dataCar)
 
-#num_data2 <- dataCar$numclaims
-#cost_data2 <- dataCar$claimcst0
+num_data2 <- dataCar$numclaims
+cost_data2 <- dataCar$claimcst0
 ```
 
 ```{r}
@@ -263,6 +263,11 @@ BIC(DAGUMsev, LNsev, WEIsev, IGsev, GAsev, SMsev, FISKsev)
 conv.check(IGsev)
 res.check(IGsev)
 summary(IGsev)
+
+
+###fitting copula
+ZTPIGN <- gjrm(list(eq1, eq2, ~1, ~1), data = data_cop, margin = c("tP", "IG"), model = "B", copula = "N")
+ZTPIGT <- gjrm(list(eq1, eq2, ~1, ~1), data = data_cop, margin = c("tP", "IG"), model = "B", copula = "T")
 
 
 # principal component Analysis
@@ -363,6 +368,7 @@ plot_ly(scores3,
 
 
 # Time seires
+
 
 
 
