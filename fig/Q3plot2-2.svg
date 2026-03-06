@@ -101,8 +101,8 @@
 <text transform='translate(-1.44,104.40) rotate(-90)' text-anchor='middle' style='font-size: 6.00px; font-family: "Arial";' textLength='98.86px' lengthAdjust='spacingAndGlyphs'>eigen values of principal components</text>
 </g>
 <g clip-path='url(#cpMjEuNjB8NDk2LjgwfDE0LjQwfDE5NC40MA==)'>
-<polyline points='39.20,131.52 83.20,134.53 127.20,137.08 171.20,139.18 215.20,141.06 259.20,142.86 303.20,144.84 347.20,146.66 391.20,148.59 435.20,150.56 479.20,153.16 ' style='stroke-width: 0.75; stroke: #FF0000; stroke-dasharray: 4.00,4.00;' />
-<polyline points='39.20,131.36 83.20,134.46 127.20,136.93 171.20,139.01 215.20,141.12 259.20,143.08 303.20,144.79 347.20,146.69 391.20,148.65 435.20,150.64 479.20,153.31 ' style='stroke-width: 0.75; stroke: #FF0000; stroke-dasharray: 1.00,3.00;' />
+<polyline points='39.20,131.47 83.20,134.50 127.20,136.98 171.20,139.15 215.20,141.24 259.20,142.92 303.20,144.70 347.20,146.74 391.20,148.57 435.20,150.66 479.20,153.10 ' style='stroke-width: 0.75; stroke: #FF0000; stroke-dasharray: 4.00,4.00;' />
+<polyline points='39.20,131.20 83.20,134.50 127.20,137.06 171.20,139.30 215.20,141.20 259.20,142.95 303.20,144.84 347.20,146.66 391.20,148.56 435.20,150.64 479.20,153.11 ' style='stroke-width: 0.75; stroke: #FF0000; stroke-dasharray: 1.00,3.00;' />
 <rect x='418.20' y='14.40' width='78.60' height='28.80' style='stroke-width: 0.75; fill: #E5E5E5;' />
 <line x1='419.82' y1='21.60' x2='430.62' y2='21.60' style='stroke-width: 0.75; stroke: #0000FF;' />
 <line x1='419.82' y1='28.80' x2='430.62' y2='28.80' style='stroke-width: 0.75; stroke: #FF0000; stroke-dasharray: 1.00,3.00;' />

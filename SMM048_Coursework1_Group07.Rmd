@@ -97,7 +97,9 @@ packages <- c(
   "corrplot", # for correlation hitmap method
   "GGally",
   "reshape2",
-  "plotly"
+  "plotly",
+  "dplyr",
+  "knitr"
 )
 
 # Check which packages are already installed
@@ -111,16 +113,21 @@ if (any(!installed)) {
 # Load all packages
 lapply(packages, library, character.only = TRUE)
 ```
-
 # Factor Analysis
 
-```{r Q1_data, echo=knitr::is_html_output(), include=TRUE}
+An exploratory factor analysis (EFA) was conducted on the 25 personality items measured on a 6-point Likert scale. The dataset contained some missing values (NA), which were handled using listwise deletion. In addition, several negatively worded items (X1, X9, X10, X11, X12, X22, and X25) were reverse-coded so that higher values consistently represented higher levels of the underlying traits. 
+
+```{r Q1_data, echo=knitr::is_html_output(), include=FALSE}
 ## R Markdown
 
 data1 <- read.table("dataset1.txt", header = TRUE)
 sum(is.na(data1))
 colSums(is.na(data1)) 
 data1_clean <- na.omit(data1)
+
+reverse_items <- c("X1","X9","X10","X11","X12","X22","X25")
+
+data1_clean[reverse_items] <- 7 - data1_clean[reverse_items]
 
 var_label(data1_clean$X1)  <- "Be indifferent to the feelings of others"
 var_label(data1_clean$X2)  <- "Inquire about others' well-being"
@@ -149,61 +156,166 @@ var_label(data1_clean$X24) <- "Spend time reflecting on things"
 var_label(data1_clean$X25) <- "Will not probe deeply into a subject"
 ```
 
-An exploratory factor analysis (EFA) was conducted on the 25 personality items measured on a 6-point Likert scale. The dataset contained some missing value(NA), which
-are handled using deletion. In odrer to determine the number of factors, two methods(PCA vs FA) were compared to improve explicity. 
+To determine the appropriate number of factors, the scree plot and parallel analysis were examined. The scree plot shows a sharp decline in eigenvalues for the first few components, with eigenvalues of 5.13, 2.75, 2.14, 1.85, 1.55, and 1.07 for the first six components. According to the Kaiser criterion (eigenvalue > 1), up to six components could be retained. However, the sixth eigenvalue (1.07) is very close to the threshold, and the scree plot begins to level off after the fifth component. Considering the overall results from the scree plot and parallel analysis, \textbf{a five-factor solution} was selected for the subsequent factor analysis.
 
-```{r Q1-2, echo=knitr::is_html_output(), include=TRUE}
-summary(data1_clean)
+```{r Q1plot1, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Scree plot and parallel analysis for determining the number of factors", fig.show='hold', fig.align='center', fig.width=6, fig.height=3.2, fig.pos='H', out.width='45%'}
 
-data1.pr <- prcomp(data1_clean, rotate="none")
-summary(data1.pr)
-pr.var = data1.pr$sdev^2
-pve=pr.var/sum(pr.var)
+# Scree plot
+fa.parallel(data1_clean, fa = "fa", main = "Parallel Analysis for Factor Selection")
 
-plot(
-  pve,
-  xlab = "principal Component",
-  ylab = "Proportion of Variance Explained",
-  ylim = c(0, 1),
-  type = "b"
-)
+# PCA
+pca1 <- prcomp(data1_clean, scale. = TRUE)
+eig <- pca1$sdev^2
+pcs <- 1:length(eig)
 
 plot(
-  cumsum(pve),
-  xlab = "principal Component",
-  ylab = "Cummulative Proportion of Variance Explained",
-  ylim = c(0, 1),
-  type = "b"
-)
-cumsum(pve)
-en <- eigen(cor(data1_clean))
-en$values
-plot(en$values, type = "o")
-
-
-fa.parallel(
-  data1_clean,
-  fa = "fa",
-  main = "Factor Analysis"
+  pcs, eig,
+  type = "b",
+  pch = 19,
+  col = "darkgreen",        
+  lwd = 2,
+  xlab = "Principal Component",
+  ylab = "Eigenvalue",
+  main = "PCA Scree Plot",
+  cex.main = 1.4,
+  cex.lab = 1.2,
+  cex.axis = 1.1,
+  ylim = c(0, max(eig) + 0.3)
 )
 
+lines(pcs, eig, col = "red", lwd = 1.5)
 
+idx <- which(eig >= 1)
 
-result <- factanal(data1_clean, factors = 6, rotation="varimax", scores="regression")
+text(
+  pcs[idx] + 0.15,        
+  eig[idx],               
+  labels = round(eig[idx], 2),
+  cex = 0.85,            
+  col = "darkblue",
+  pos = 4                
+)
 
-result
-
-
-print(result, digits=2, cutoff=0.5)
-print(result$loadings, cutoff=0)
-
-result2 <- factanal(data1_clean, factors = 5, rotation="varimax", scores="regression")
-result2
-
-print(result2, digits=2, cutoff=0.5)
-print(result2$loadings, cutoff=0)
+abline(h = 1, col = "red", lwd = 1.5, lty = 2)
 
 ```
+
+Figure \@ref(fig:q1plot2) shows the rotated factor loading matrices obtained using varimax and promax rotations. Both rotations produce broadly similar loading patterns, suggesting that the factor structure is stable. Most items load strongly on a single factor, with limited cross-loadings. The promax rotation allows correlations between factors and yields slightly clearer clustering of items. Overall, the results support the five-factor solution selected from the scree plot and parallel analysis.
+
+
+``` {r q1plot2, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Rotated Factor loadings(Varimax vs Promax)", fig.show='hold', fig.align='center', fig.width=6, fig.height=3.2, fig.pos='H', out.width='45%'}
+
+
+fa5 <- factanal(
+  data1_clean,
+  factors  = 5,
+  rotation = "varimax",
+  scores   = "regression"
+)
+
+L  <- as.matrix(fa5$loadings)
+df <- as.data.frame(as.table(L))   # Var1=Item, Var2=Factor, Freq=Loading
+colnames(df) <- c("Item", "Factor", "Loading")
+
+df$Factor <- factor(df$Factor, levels = colnames(L))
+df$Item   <- factor(df$Item,   levels = rev(rownames(L)))  
+
+ggplot(df, aes(x = Factor, y = Item, fill = Loading)) +
+  geom_tile(color = "white", linewidth = 0.2) +
+  scale_fill_gradient2(
+    low = "blue", mid = "white", high = "red",
+    midpoint = 0, limits = c(-1, 1)
+  ) +
+  labs(
+    title = "Rotated Factor Loadings (Varimax)",
+    x = "Factor",
+    y = "Item"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    panel.grid = element_blank()
+  )
+
+fa5_2 <- factanal(
+  data1_clean,
+  factors  = 5,
+  rotation = "promax",
+  scores   = "Bartlett"
+)
+
+L2  <- as.matrix(fa5_2$loadings)
+df2 <- as.data.frame(as.table(L2))   # Var1=Item, Var2=Factor, Freq=Loading
+colnames(df2) <- c("Item", "Factor", "Loading")
+
+df2$Factor <- factor(df2$Factor, levels = colnames(L2))
+df2$Item   <- factor(df2$Item,   levels = rev(rownames(L2)))  
+
+ggplot(df2, aes(x = Factor, y = Item, fill = Loading)) +
+  geom_tile(color = "white", linewidth = 0.2) +
+  scale_fill_gradient2(
+    low = "blue", mid = "white", high = "red",
+    midpoint = 0, limits = c(-1, 1)
+  ) +
+  labs(
+    title = "Rotated Factor Loadings (Promax)",
+    x = "Factor",
+    y = "Item"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    panel.grid = element_blank()
+  )
+
+```
+
+The uniqueness values range from 0.27 to 0.83, with an average of approximately 0.58, indicating that the extracted factors explain a moderate proportion of variance in the observed items. The rotated factor loadings reveal a clear five-factor structure. Factor 1 loads strongly on items related to emotional instability (X16–X20), suggesting neuroticism. Factor 2 reflects extraversion, with items describing sociability and interpersonal engagement (e.g., X11–X15). Factor 3 corresponds to conscientiousness, capturing organisation, diligence, and careful work behaviour (X6–X10), while Factor 4 represents agreeableness, including empathy and concern for others (X2–X5). Finally, Factor 5 is associated with openness to experience, reflecting intellectual curiosity and reflective thinking (X21–X25).
+
+
+``` {r q1table, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+
+
+df <- df %>%
+  filter(abs(Loading) >= 0.40) %>%
+  arrange(Factor, desc(abs(Loading)))
+
+factor_scores <- as.data.frame(fa5$scores)
+colnames(factor_scores) <- paste0("F", 1:5)
+
+data1_clean_with_scores <- cbind(data1_clean, factor_scores)
+
+uniq <- summary(fa5$uniquenesses)
+
+uniq_df <- as.data.frame(t(uniq))
+
+knitr::kable(
+  uniq_df,
+  digits = 3,
+  align = "c",
+  caption = "Summary of Uniqueness Values"
+)
+
+```
+
+``` {r q1table2, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+
+
+df$Factor <- gsub("Factor","F",df$Factor)
+
+kable(
+  df,
+  digits = 2,
+  align = "c",
+  caption = "Main Factor Loadings"
+)
+```
+
+
+```{=latex}
+\newpage
+```
+
 
 # copula analysis 
 
@@ -296,7 +408,7 @@ print(AIC(ZTPIGN, ZTPIGT))
 
 # principal component Analysis
 
-We applied Principal Component Analysis (PCA) to the dataset consisting of 11 variables. Because the variables are measured on different scales (e.g., income levels vs. rating scores), we standardised all variables using \(\texttt{scale.=TRUE}\). Missing values were removed using \(\texttt{na.omit}\).
+We applied Principal Component Analysis (PCA), an unsupervised dimensionality-reduction method, to transform the 11 variables into a smaller set of uncorrelated components that successively explain the maximum possible variance. Variables were standardised using z-scores with before PCA because features are in different units, e.g., income vs age vs rating scores. Without scaling, high-variance variables can dominate PC1 purely due to measurement scale rather than the real underlying structure in the data.
 
 ```{r Q3 data, echo=knitr::is_html_output(), include=FALSE}
 ## R Markdown
@@ -326,8 +438,8 @@ pve <- pr.var / sum(pr.var)
 
 ```
 
-The correlation matrix shows generally weak to moderate correlations among variables, suggesting that several variables related to purchasing behaviour (spending score, Shopping Frequency, and Brand loyalty) are strongly positively correlated. In contrast, Age shows a negative relationship with these variables
-This indicates that the first principal component is likely to capture a consumer spending behaviour dimension
+The correlation matrix shows generally weak to moderate correlations among variables, suggesting that several variables related to purchasing behaviour (spending score, Shopping Frequency, and Brand loyalty) are strongly positively correlated. PC1 contrasts purchasing intensity (spending score, shopping frequency, and brand loyalty) against age, suggesting that older customers tend to have lower purchasing-intensity scores on this component( here can add scatterplot as evidence to support if have space).
+
 
 
 ```{r Q3Cor, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Correlation matrix (numbers left, heatmap right)", fig.show='hold', fig.align='center', fig.width=6, fig.height=3.2, fig.pos='H', out.width='45%'}
@@ -363,7 +475,7 @@ ggplot(data.frame(PC = 1:length(pve), PVE = pve), aes(x = PC, y = PVE)) +
 
 ```
 
-The cumulative variance plot shows that the first few principal components explain a substantial proportion of the total variance. In particular, the first three components explain more than half of the overall variation. The parallel analysis also indicates that three principal components should be retained, as the first three observed eigenvalues exceed those obtained from simulated data. The loading plot suggests that PC1 captures purchasing behaviour variables such as Spending Score, Shopping Frequency, Brand Loyalty, and Income. PC2 is mainly associated with Age and Email Open Rate, while PC3 is largely driven by Social Media Engagement. Therefore, the dimensionality of the dataset can be effectively reduced to three principal components while retaining most of the relevant information.
+TThe cumulative variance curve shows that the first three PCs explain over half of the total variation. Parallel analysis also supports retaining three components, since only the first three observed eigenvalues exceed those from simulated data. (tightened version)
 
 ```{r Q3plot2, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Cumulative variance, parallel analysis.", fig.show='hold', fig.align='center', fig.width=7, fig.height=3, fig.pos='H', out.width='48%'}      
       
@@ -390,7 +502,7 @@ fa.parallel(data3, fa="pc", main="Parallel analysis", n.iter=100)
 par(op)
 
 ```
-
+The loading plot suggests that PC1 is driven by Spending Score, Shopping Frequency and Brand Loyalty, with the largest absolute loadings, representing purchasing intensity. Age loads in the opposite direction, indicating lower purchasing intensity among older customers, noting that PC signs are arbitrary. PC2 loads most strongly and positively on Age and Income, with Email Open Rate also positive, so higher PC2 scores reflect relatively older, higher-income customers who are more responsive to email as a communication channel. PC3 has opposite-signed loadings, which are positive for Promotion Usage and Cart Abandonment but negative for Social Media and Email engagement. It separates price-sensitive basket behaviour (promo use, cart abandonment) from digital-channel engagement (social/email). Overall, the dataset can be reduced to three orthogonal behavioural drivers while retaining most of the relevant information.
 
 ```{r Q3plot3, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="PCA loadings.", fig.show='hold', fig.align='center', fig.width=7, fig.height=3, fig.pos='H', out.width='48%'}      
 
