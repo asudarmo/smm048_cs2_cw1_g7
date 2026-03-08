@@ -1,0 +1,210 @@
+---
+title: "Q4_Ardi_draft"
+author: "Ardi Wira Sudarmo"
+date: "2026-03-08"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 
+
+```{r}
+library(forecast)
+library(sarima)
+```
+
+
+```{r}
+
+mydata <- read.table("ARIMAsim2.dat", header = TRUE)
+
+ts1 <- ts(mydata$ts1)
+ts2 <- ts(mydata$ts2)
+ts3 <- ts(mydata$ts3)
+
+```
+
+
+
+```{r}
+
+plot(ts1)
+
+```
+
+
+```{r}
+
+plot(ts2)
+
+```
+
+
+```{r}
+
+plot(ts3)
+
+```
+
+```{r}
+library(tseries)
+```
+
+
+```{r}
+adf.test(ts1)
+```
+
+```{r}
+adf.test(ts2)
+```
+
+```{r}
+adf.test(ts3)
+```
+
+```{r}
+library(forecast)
+```
+
+
+```{r}
+
+ts1.aa.202 <- auto.arima(ts1, max.q = 10)
+
+ts1.aa.202
+```
+
+
+```{r}
+ts1.arima.202 <- arima(ts1, c(2,0,2))
+
+acf(resid(ts1.arima.202))
+pacf(resid(ts1.arima.202))
+```
+
+
+
+```{r}
+
+acf(ts1)
+pacf(ts1)
+
+# p = 4
+# q = 4, 8, 9
+
+```
+
+```{r}
+qqnorm(resid(ts1.arima.202))
+qqline(resid(ts1.arima.202))
+```
+
+
+```{r}
+tsdiag(ts1.arima.202)
+```
+
+```{r}
+
+tsdiag.Sarima(ts1.arima.202, plot = 3)
+```
+
+
+```{r}
+auto.arima(ts2)
+```
+
+
+
+```{r}
+acf(ts2)
+pacf(ts2)
+```
+
+```{r}
+ts2.arima.203 <- arima(ts2, c(2,0,3))
+
+acf(resid(ts2.arima.203))
+pacf(resid(ts2.arima.203))
+```
+
+```{r}
+qqnorm(resid(ts2.arima.203))
+qqline(resid(ts2.arima.203))
+```
+
+```{r}
+
+tsdiag.Sarima(ts2.arima.203, plot = 3)
+```
+
+
+```{r}
+
+auto.arima(ts3)
+```
+
+```{r}
+ts3.arima.210 <- arima(ts3, c(2,1,0))
+
+acf(resid(ts3.arima.210))
+pacf(resid(ts3.arima.210))
+```
+
+```{r}
+qqnorm(resid(ts3.arima.210))
+qqline(resid(ts3.arima.210))
+```
+
+```{r}
+
+tsdiag.Sarima(ts3.arima.210, plot = 3)
+```
+
+
+```{r}
+
+forecast(ts3.arima.210)
+
+```
+
+```{r}
+
+plot(forecast(ts1.arima.202))
+
+```
+
+```{r}
+
+plot(forecast(ts2.arima.203))
+
+```
+
+```{r}
+
+plot(forecast(ts3.arima.210))
+
+```
+
+
+```{r}
+
+#temp <- ts1
+btrain <- window(ts1, 1, 200)
+
+fc1 <- predict(ts1.arima.202, n.ahead = 24)
+
+plot(ts1, lty = 3)
+lines(btrain, lwd = 2)
+lines(fc1$pred, lwd = 2, col = "red")
+lines(fc1$pred + fc1$se*1.96, col = "red")
+lines(fc1$pred - fc1$se*1.96, col = "red")
+
+```
+
+
+
