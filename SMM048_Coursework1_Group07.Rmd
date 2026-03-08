@@ -10,7 +10,15 @@ date: "`r format(Sys.Date(), '%d %B %Y')`"
 output:
   bookdown::html_document2:
     self_contained: true
- #   css: style.css
+  bookdown::pdf_document2:
+    #  - "--lua-filter=answer.lua"
+    latex_engine: xelatex
+    citation_package: natbib
+    keep_tex: true
+    #includes:
+    #  in_header: preamble.tex
+    #pandoc_args:
+    #css: style.css
     toc: true
     toc_float: true
     toc_depth: 3
@@ -19,17 +27,6 @@ output:
     theme: united
     highlight: tango
     df_print: paged
-  bookdown::pdf_document2:
-    latex_engine: xelatex
-    citation_package: natbib
-    number_sections: true
-    toc: true
-    toc_depth: 3
-    keep_tex: true
-    includes:
-      in_header: preamble.tex
-    pandoc_args:
-      - "--lua-filter=answer.lua"
 #bibliography: references.bib
 ---
 ```{=latex}
@@ -300,7 +297,7 @@ Table \@ref(tab:q1table) showes from 0.27 to 0.83, with an average of approximat
 ```
 
 
-# copula analysis 
+# copula analysis
 
 ```{r Q2, echo=knitr::is_html_output(), include=TRUE}
 # library(GJRM)
@@ -313,6 +310,21 @@ data_cop <- subset(dataCar,
 			 is.finite(claimcst0) & is.finite(exposure) & 
 	   	   	 exposure > 0)
 
+
+```
+
+Noting that the majority of claims amount is zero in the dataset (63232 out of 67856 records), we initially considered two broad approaches for the analyis.
+The first method is to retain all zero-claims data, and fit the marginal distribution of claim amount using Tweedie, which can model mixed distribution with probability mass at 0. However, we could not pursue this due to limitation in the GJRM library as it currently does not support the joint regression between Poisson with Tweedie margins. (For more details with the technical difficulties encountered, please refer to the appendix).
+
+The second method is to truncate the zero-claims data and and then model the strictly positive claim amounts from a wider selection of distributions. The business justification is that insurers model claims to monitor pricing and reserving assumption so they are less interested in zero-claims. The rest of the report for Q2 summarizes the results of the second method.
+
+## Fitting claim frequency marginal distribution
+
+For claim frequency, the models were fitted using exposure as an offset to account for varying policy durations. Although the truncated Poisson–Inverse Gaussian model yields the lowest AIC, the improvement over the truncated Poisson model is negligible (𝛥𝐴𝐼𝐶 ≈ 1.13). In contrast,the truncated Poisson model achieves the lowest BIC due to its model simplicity. Therefore, the truncated Poisson model was selected as the marginal distribution for claim frequency. The fitted model implies an estimated annual claim rate of $\mu \approx e^{−2.66711} = 0.0694$ claims per unit exposure. Model diagnostics indicate satisfactory convergence with the maximum absolute gradient close to zero, a positive definite information matrix, and a closely fitted Normal QQ-plot.
+
+
+```{r echo=FALSE}
+
 eq1 <- numclaims ~ 1
 eq2 <- claimcst0 ~ 1
 
@@ -321,69 +333,62 @@ eq2 <- claimcst0 ~ 1
 #truncated frequency
 
 tPfreq <- GJRM::gamlss(list(eq1), family = "tP", data = data_cop, offset = data_cop$exposure)
-tNBIfreq <- GJRM::gamlss(list(eq1), family = "tNBI", data = data_cop, offset = data_cop$exposure)
-tNBIIfreq <- GJRM::gamlss(list(eq1), family = "tNBII", data = data_cop, offset = data_cop$exposure)
-tPIGfreq <- GJRM::gamlss(list(eq1), family = "tPIG", data = data_cop, offset = data_cop$exposure) 
+# tNBIfreq <- GJRM::gamlss(list(eq1), family = "tNBI", data = data_cop, offset = data_cop$exposure)
+# tNBIIfreq <- GJRM::gamlss(list(eq1), family = "tNBII", data = data_cop, offset = data_cop$exposure)
+# tPIGfreq <- GJRM::gamlss(list(eq1), family = "tPIG", data = data_cop, offset = data_cop$exposure) 
+# 
+# print(AIC(tPfreq, tNBIfreq, tNBIIfreq, tPIGfreq))
+# print(BIC(tPfreq, tNBIfreq, tNBIIfreq, tPIGfreq))
 
-print(AIC(tPfreq, tNBIfreq, tNBIIfreq, tPIGfreq))
-print(BIC(tPfreq, tNBIfreq, tNBIIfreq, tPIGfreq))
-```
-
-
-```{r}
 conv.check(tPfreq)
 res.check(tPfreq)
 summary(tPfreq)
 ```
 
 
-TODO: Marcella put her analysis results here
+## Fitting claim amount marginal distribution
 
-it's using markdown syntax.
+Claim severity was modelled using positive claim amounts only, where the data exhibits a strongly right-skewed distribution. Among the models tested, the Inverse Gaussian distribution provides the best fit, achieving the lowest AIC and BIC values. Model diagnostics indicate satisfactory convergence near zero and a positive definite information matrix.
 
-Example latex:
-$$
-x+1
-$$
+The Normal Q-Q plot shows a reasonable fit for the middle and upper quantiles, while the lower tail deviates from the diagonal line, indicating that the model underestimates very small claim amounts, but the overall fit is considered adequate for modelling dependence in the following copula analysis.
 
 
-```{r}
+```{r echo=FALSE}
 
 #claim severity distribution
 
-LNsev <- GJRM::gamlss(list(eq2), family="LN", data=data_cop)
-IGsev <- GJRM::gamlss(list(eq2), family="IG", data=data_cop)
-GAsev <- GJRM::gamlss(list(eq2), family="GA", data=data_cop)
+# LNsev <- GJRM::gamlss(list(eq2), family="LN", data=data_cop)
+# IGsev <- GJRM::gamlss(list(eq2), family="IG", data=data_cop)
+# GAsev <- GJRM::gamlss(list(eq2), family="GA", data=data_cop)
+# 
+# WEIsev <- GJRM::gamlss(list(eq2), family="WEI", data=data_cop)
+# SMsev <- GJRM::gamlss(list(eq2), family="SM", data=data_cop)
+# FISKsev <- GJRM::gamlss(list(eq2), family="FISK", data=data_cop)
+# DAGUMsev <- GJRM::gamlss(list(eq2), family="DAGUM", data=data_cop)
+# 
+# print(AIC(DAGUMsev, LNsev, WEIsev, IGsev, GAsev, SMsev, FISKsev))
+# print(BIC(DAGUMsev, LNsev, WEIsev, IGsev, GAsev, SMsev, FISKsev))
+# 
+# conv.check(IGsev)
+# res.check(IGsev)
+# summary(IGsev)
 
-WEIsev <- GJRM::gamlss(list(eq2), family="WEI", data=data_cop)
-SMsev <- GJRM::gamlss(list(eq2), family="SM", data=data_cop)
-FISKsev <- GJRM::gamlss(list(eq2), family="FISK", data=data_cop)
-DAGUMsev <- GJRM::gamlss(list(eq2), family="DAGUM", data=data_cop)
-
-print(AIC(DAGUMsev, LNsev, WEIsev, IGsev, GAsev, SMsev, FISKsev))
-print(BIC(DAGUMsev, LNsev, WEIsev, IGsev, GAsev, SMsev, FISKsev))
 ```
 
 
-```{r}
+## Joint regression with copula
 
-conv.check(IGsev)
-res.check(IGsev)
-summary(IGsev)
-```
+(TODO)
 
-
-```{r}
+```{r echo=FALSE}
 
 ###fitting copula
-ZTPIGN <- gjrm(list(eq1, eq2, ~1, ~1), data = data_cop, margin = c("tP", "IG"), model = "B", copula = "N")
-ZTPIGT <- gjrm(list(eq1, eq2, ~1, ~1), data = data_cop, margin = c("tP", "IG"), model = "B", copula = "T")
+# ZTPIGN <- gjrm(list(eq1, eq2, ~1, ~1), data = data_cop, margin = c("tP", "IG"), model = "B", copula = "N")
+# ZTPIGT <- gjrm(list(eq1, eq2, ~1, ~1), data = data_cop, margin = c("tP", "IG"), model = "B", copula = "T")
+
+# print(AIC(ZTPIGN, ZTPIGT))
 ```
 
-
-```{r}
-print(AIC(ZTPIGN, ZTPIGT))
-```
 
 ```{=latex}
 \newpage
