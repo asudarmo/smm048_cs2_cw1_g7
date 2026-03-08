@@ -365,6 +365,15 @@ Convergence diagnostics also indicate stable estimation. In both marginal models
 ## Copula Selection
 To model the dependence between claim frequency and claim severity, four copula families were considered: Gaussian, Student-t, Clayton and Gumbel.
 
+```{r echo=FALSE}
+freq.perf.df <- data.frame(
+  Models = c('Gaussian', 'Student-t', 'Clayton', 'Gumbel'),
+  df = c(4, 4, 4, 4),
+  AIC = c(79384.86, 79590.55, 79321.95, 79482.90),
+  BIC = c(79410.61, 79616.30, 79616.30, 79508.66)
+)
+```
+
 Among these candidates, the Clayton copula provides the best fit, achieving the lowest AIC and BIC values by a clear margin. Convergence diagnostics confirm stable estimation, with a maximum gradient of 8.45 × 10⁻⁶ and a positive definite information matrix.
 The estimated Clayton copula parameter is positive and statistically significant θ=1.47  , indicating positive dependence between claim frequency and claim severity. It corresponds to a Kendall’s τ =θ/(θ+2) =0.4236, which indicates a moderate positive association between claim frequency and claim severity.
 We therefore fit Clayton copula with claytonCopula(param = 1.47, dim = 2).
@@ -893,4 +902,5 @@ plot_ly(scores3,
 ```
 
 ## bonus : Q4 Time series
+
 
