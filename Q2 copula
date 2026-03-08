@@ -1,0 +1,98 @@
+#cs2 cw1 q2 copula
+install.packages("insuranceData")
+library(GJRM)
+library(insuranceData)
+data(dataCar)
+
+data_cop <- subset(dataCar,
+                   numclaims > 0 & claimcst0 > 0 & 
+			 is.finite(claimcst0) & is.finite(exposure) & 
+	   	   	 exposure > 0)
+
+eq1 <- numclaims ~ 1
+eq2 <- claimcst0 ~ 1
+
+#claim frequency distribution
+#use offset since exposure is not constant
+#truncated frequency
+
+tPfreq <- GJRM::gamlss(list(eq1), family = "tP", data = data_cop, offset = data_cop$exposure)
+tNBIfreq <- GJRM::gamlss(list(eq1), family = "tNBI", data = data_cop, offset = data_cop$exposure)
+tNBIIfreq <- GJRM::gamlss(list(eq1), family = "tNBII", data = data_cop, offset = data_cop$exposure)
+tPIGfreq <- GJRM::gamlss(list(eq1), family = "tPIG", data = data_cop, offset = data_cop$exposure) 
+
+AIC(tPfreq, tNBIfreq, tNBIIfreq, tPIGfreq)
+BIC(tPfreq, tNBIfreq, tNBIIfreq, tPIGfreq)
+
+conv.check(tPfreq)
+res.check(tPfreq)
+summary(tPfreq)
+
+#claim severity distribution
+
+LNsev <- GJRM::gamlss(list(eq2), family="LN", data=data_cop)
+IGsev <- GJRM::gamlss(list(eq2), family="IG", data=data_cop)
+GAsev <- GJRM::gamlss(list(eq2), family="GA", data=data_cop)
+
+WEIsev <- GJRM::gamlss(list(eq2), family="WEI", data=data_cop)
+SMsev <- GJRM::gamlss(list(eq2), family="SM", data=data_cop)
+FISKsev <- GJRM::gamlss(list(eq2), family="FISK", data=data_cop)
+DAGUMsev <- GJRM::gamlss(list(eq2), family="DAGUM", data=data_cop)
+
+AIC(DAGUMsev, LNsev, WEIsev, IGsev, GAsev, SMsev, FISKsev)
+BIC(DAGUMsev, LNsev, WEIsev, IGsev, GAsev, SMsev, FISKsev)
+
+conv.check(IGsev)
+res.check(IGsev)
+summary(IGsev)
+
+#goodness of fit test
+
+lambda_freq <- exp(-2.66711)
+
+mu_sev <- exp(7.60808)
+sigma_sev <- 0.0373
+
+lambda_sev <- mu_sev^3 / sigma_sev^2
+
+#ks test assumes continuous data, so only cvm test is used here to test tp and ig fit
+library(goftest)
+
+cvm.test(
+  data_cop$numclaims,
+  null = function(x) ptrunc(x, spec="pois", a=1, lambda=lambda_freq)
+)
+
+cvm.test(
+  data_cop$claimcst0,
+  null = function(x) pinvgauss(x, mean = mu_sev, shape = lambda_sev)
+)
+
+###copula selection
+ZTPIGN <- gjrm(list(eq1, eq2, ~1, ~1), data = data_cop, margin = c("tP", "IG"), model = "B", copula = "N")
+ZTPIGT <- gjrm(list(eq1, eq2, ~1, ~1), data = data_cop, margin = c("tP", "IG"), model = "B", copula = "T")
+ZTPIGC <- gjrm(list(eq1, eq2, ~1, ~1), data = data_cop, margin = c("tP", "IG"), model = "B", copula = "C0")
+ZTPIGG <- gjrm(list(eq1, eq2, ~1, ~1), data = data_cop, margin = c("tP", "IG"), model = "B", copula = "G0")
+
+AIC(ZTPIGN,ZTPIGT,ZTPIGC,ZTPIGG)
+BIC(ZTPIGN,ZTPIGT,ZTPIGC,ZTPIGG)
+
+conv.check(ZTPIGC)
+res.check(ZTPIGC)
+summary(ZTPIGC)
+
+
+### fitting clayton copula 
+library(copula)
+
+theta_hat <- 1.47
+tau_hat   <- theta_hat / (theta_hat + 2)
+
+clay_fit <- claytonCopula(param = theta_hat, dim = 2)
+
+#scatterplot
+u_clayton <- rCopula(1000, clay_fit)
+plot(u_clayton,
+     main = paste("Clayton Copula (tau =", round(tau_hat,2),")"),
+     xlab = "U1", ylab = "U2",
+     pch = 16, cex = 0.6)
