@@ -55,7 +55,23 @@ sigma_sev <- 0.0373
 
 lambda_sev <- mu_sev^3 / sigma_sev^2
 
-#ks test assumes continuous data, so only cvm test is used here to test tp and ig fit
+library(truncdist)
+library(statmod)
+
+#ks test 
+ks.test(
+  data_cop$numclaims,
+  function(x) ptrunc(x, spec="pois", a=1, lambda=lambda_freq)
+)
+
+ks.test(
+  data_cop$claimcst0,
+  "pinvgauss",
+  mean = mu_sev,
+  shape = lambda_sev
+)
+
+#cvm test 
 library(goftest)
 
 cvm.test(
@@ -67,6 +83,7 @@ cvm.test(
   data_cop$claimcst0,
   null = function(x) pinvgauss(x, mean = mu_sev, shape = lambda_sev)
 )
+
 
 ###copula selection
 ZTPIGN <- gjrm(list(eq1, eq2, ~1, ~1), data = data_cop, margin = c("tP", "IG"), model = "B", copula = "N")
