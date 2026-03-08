@@ -333,18 +333,7 @@ freq.perf.df <- data.frame(
 )
 ```
 
-```{r Q2freqPerfTable, echo=FALSE}
-knitr::kable(
-  freq.perf.df,
-  digits = 3,
-  align = "c",
-  caption = "Claim frequency model performance",
-  booktabs = TRUE
-) %>%
-  kable_styling(latex_options = "hold_position")
-```
-
-Several truncated count models were considered to account for the absence of zero claims in the dataset, as shown in \@ref(tab:Q2freqPerfTable). Although the truncated Poisson–Inverse Gaussian specification produces the smallest AIC, the improvement relative to the truncated Poisson model is negligible. (ΔAIC ≈ 1.13). The truncated Poisson model is therefore preferred as it achieves the lowest BIC, implying the simplest model.
+Several truncated count models were considered to account for the absence of zero claims in the dataset, as shown in table \@ref(tab:Q2freqPerfTable). Although the truncated Poisson–Inverse Gaussian specification produces the smallest AIC, the improvement relative to the truncated Poisson model is negligible. (ΔAIC ≈ 1.13). The truncated Poisson model is therefore preferred as it achieves the lowest BIC, implying the simplest model.
 
 ```{r}
 
@@ -761,6 +750,17 @@ kable(
 ```
 
 ## bonus : Q2 Coupla
+
+```{r Q2freqPerfTable, echo=FALSE}
+knitr::kable(
+  freq.perf.df,
+  digits = 3,
+  align = "c",
+  caption = "Claim frequency model performance",
+  booktabs = TRUE
+) %>%
+  kable_styling(latex_options = "hold_position")
+```
 
 ```{=latex}
 \newpage
