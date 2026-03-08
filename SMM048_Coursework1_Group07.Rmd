@@ -320,9 +320,40 @@ The second method is to truncate the zero-claims data and and then model the str
 
 ## Marginal Distributions Selection
 Claim frequency and severity were modelled using GJRM.
+
+
 ## Claim Frequency
-Several truncated count models were considered to account for the absence of zero claims in the dataset. Although the truncated Poisson–Inverse Gaussian specification produces the smallest AIC, the improvement relative to the truncated Poisson model is negligible. (ΔAIC ≈ 1.13). The truncated Poisson model is therefore preferred as it achieves the lowest BIC, implying the simplest model.
+
+```{r echo=FALSE}
+freq.perf.df <- data.frame(
+  Models = c('Truncated Poisson', 'Truncated NB I', 'Truncated Poisson Inverse Gaussian'),
+  df = c(1, 1, 2),
+  AIC = c(2297.331, 2296.227, 2296.119),
+  BIC = c(2303.771, 2309.105, 2309.077)
+)
+```
+
+```{r Q2freqPerfTable, echo=FALSE}
+knitr::kable(
+  freq.perf.df,
+  digits = 3,
+  align = "c",
+  caption = "Claim frequency model performance",
+  booktabs = TRUE
+) %>%
+  kable_styling(latex_options = "hold_position")
+```
+
+Several truncated count models were considered to account for the absence of zero claims in the dataset, as shown in \@ref(tab:Q2freqPerfTable). Although the truncated Poisson–Inverse Gaussian specification produces the smallest AIC, the improvement relative to the truncated Poisson model is negligible. (ΔAIC ≈ 1.13). The truncated Poisson model is therefore preferred as it achieves the lowest BIC, implying the simplest model.
+
+```{r}
+
 #tPfreq <- GJRM::gamlss(list(eq1), family = "tP", data = data_cop, offset = data_cop$exposure)
+
+```
+
+
+
 The fitted model implies represent claim arrivals under the assumption that claims occur independently at a constant rate over the exposure period with an estimated annual claim rate of 〖μ ̂=e〗^(-2.66711)=0.0694 claims per unit exposure, indicating that claims are relatively infrequent events in the portfolio.
 
 ## Claim Severity
