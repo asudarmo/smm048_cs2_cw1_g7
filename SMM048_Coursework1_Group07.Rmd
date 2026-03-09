@@ -313,45 +313,26 @@ data_cop <- subset(dataCar,
 
 ```
 
-Noting that the majority of claims amount is zero in the dataset (63232 out of 67856 records), we initially considered two broad approaches for the analyis.
+Noting that the majority of claims amount is zero in the dataset (~93.2% of 67856 records), we initially considered two broad approaches for the analyis.
 The first method is to retain all zero-claims data, and fit the marginal distribution of claim amount using Tweedie, which can model mixed distribution with probability mass at 0. However, we could not pursue this due to limitation in the GJRM library as it currently does not support the joint regression between Poisson with Tweedie margins. (For more details with the technical difficulties encountered, please refer to the appendix).
 
 The second method is to truncate the zero-claims data and and then model the strictly positive claim amounts from a wider selection of distributions. The business justification is that insurers model claims to monitor pricing and reserving assumption so they are less interested in zero-claims. The rest of the report for Q2 summarizes the results of the second method.
 
 ## Marginal Distributions Selection
-Claim frequency and severity were modelled using GJRM.
 
+Several truncated count models were considered to account for the absence of zero claims in the dataset, as shown in table \@ref(tab:Q2freqPerfTable). Although the truncated Poisson–Inverse Gaussian specification produces the smallest AIC, the improvement relative to the truncated Poisson model is negligible. ($\Delta$AIC $\approx$ 1.13). The truncated Poisson model is therefore preferred as it achieves the lowest BIC, implying the simplest model.
 
-## Claim Frequency
+The fitted model implies represent claim arrivals under the assumption that claims occur independently at a constant rate over the exposure period with an estimated annual claim rate of $\hat{\mu}=e^{-2.66711}=0.0694$ claims per unit exposure, indicating that claims are relatively infrequent events in the portfolio.
 
-Several truncated count models were considered to account for the absence of zero claims in the dataset, as shown in table \@ref(tab:Q2freqPerfTable). Although the truncated Poisson–Inverse Gaussian specification produces the smallest AIC, the improvement relative to the truncated Poisson model is negligible. (ΔAIC ≈ 1.13). The truncated Poisson model is therefore preferred as it achieves the lowest BIC, implying the simplest model.
-
-```{r}
-
-#tPfreq <- GJRM::gamlss(list(eq1), family = "tP", data = data_cop, offset = data_cop$exposure)
-
-```
-
-
-
-The fitted model implies represent claim arrivals under the assumption that claims occur independently at a constant rate over the exposure period with an estimated annual claim rate of 〖μ ̂=e〗^(-2.66711)=0.0694 claims per unit exposure, indicating that claims are relatively infrequent events in the portfolio.
-
-## Claim Severity
 Claim severity was modelled using positive claim amounts only. The distribution of claim costs is strongly right-skewed, which is typical for insurance losses where a small number of claims account for disproportionately large costs. Among the models tested, the Inverse Gaussian distribution provides the best fit, achieving the lowest AIC and BIC values, as shown in table \@ref(tab:Q2sevPerfTable).
 
-```{r}
-# IGsev <- GJRM::gamlss(list(eq2), family="IG", data=data_cop)
-```
-
-The fitted Inverse Gaussian model implies an average positive claim severity of approximately μ=exp⁡(7.60808)=2011, with variability increasing with the cube of the mean, which indicates the heavy right tail commonly observed in claim severity data.
+The fitted Inverse Gaussian model implies an average positive claim severity of approximately $\hat{μ}=e^{7.60808} = 2011$, with variability increasing with the cube of the mean, which indicates the heavy right tail commonly observed in claim severity data.
 
 ## Model Diagnostics
 Null hypothesis is data follow the fitted marginal distribution.
 
-### Q-Q plots
-The Q–Q plots obtained from res.check() show that the truncated Poisson model provides a satisfactory representation of claim frequency, while the inverse Gaussian distribution captures the overall shape of the severity distribution. Although the lower tail appears to deviate from the diagonal line, indicating that the model underfits very small claim amounts, the overall fit is considered adequate for modelling dependence in the following copula analysis. 
+The Q–Q plots obtained from `res.check()` show that the truncated Poisson model provides a satisfactory representation of claim frequency, while the inverse Gaussian distribution captures the overall shape of the severity distribution. Although the lower tail appears to deviate from the diagonal line, indicating that the model underestimates very small claim amounts, the overall fit is considered adequate for modelling dependence in the following copula analysis. [Refer to residual quantile QQ plot of marginal distributions fits here]
 
-### Convergence & Information Matrix
 Convergence diagnostics also indicate stable estimation. In both marginal models the maximum absolute gradient is close to zero, 2.592529e-06 and 9.256606e-13, respectively, and the observed information matrix is positive definite, confirming that the likelihood optimisation has successfully converged.
 
 ## Copula Selection
@@ -366,8 +347,8 @@ freq.perf.df <- data.frame(
 )
 ```
 
-Among these candidates, the Clayton copula provides the best fit, achieving the lowest AIC and BIC values by a clear margin. Convergence diagnostics confirm stable estimation, with a maximum gradient of 8.45 × 10⁻⁶ and a positive definite information matrix.
-The estimated Clayton copula parameter is positive and statistically significant θ=1.47  , indicating positive dependence between claim frequency and claim severity. It corresponds to a Kendall’s τ =θ/(θ+2) =0.4236, which indicates a moderate positive association between claim frequency and claim severity.
+Among these candidates, the Clayton copula provides the best fit, achieving the lowest AIC and BIC values by a clear margin. Convergence diagnostics confirm stable estimation, with a maximum gradient of $8.45 \times 10^{-6}$ and a positive definite information matrix.
+The estimated Clayton copula parameter is positive and statistically significant $\theta = 1.47$  , indicating positive dependence between claim frequency and claim severity. It corresponds to a Kendall’s $\tau = \frac{\theta}{(\theta+2)} = 0.4236$, which indicates a moderate positive association between claim frequency and claim severity.
 We therefore fit Clayton copula with claytonCopula(param = 1.47, dim = 2).
 
 ## Dependence Interpretation & Insurance Implication
@@ -375,71 +356,7 @@ The Clayton copula captures lower-tail dependence, meaning that policies with re
 In contrast, the poorer performance of the Gumbel copula in the previous section suggests weaker upper-tail dependence, meaning that extremely high claim counts are not systematically associated with extremely large claim amounts. This may reflect the heterogeneity of severe claims, where large losses can arise from factors such as accident type or medical costs rather than the number of claims alone. 
 Overall, the Clayton copula provides a flexible and interpretable representation of the dependence structure between claim frequency and claim severity, capturing the observed lower-tail association while avoiding unrealistic assumptions of symmetric dependence.
 
-```{r echo=FALSE}
 
-eq1 <- numclaims ~ 1
-eq2 <- claimcst0 ~ 1
-
-#claim frequency distribution
-#use offset since exposure is not constant
-#truncated frequency
-
-tPfreq <- GJRM::gamlss(list(eq1), family = "tP", data = data_cop, offset = data_cop$exposure)
-# tNBIfreq <- GJRM::gamlss(list(eq1), family = "tNBI", data = data_cop, offset = data_cop$exposure)
-# tNBIIfreq <- GJRM::gamlss(list(eq1), family = "tNBII", data = data_cop, offset = data_cop$exposure)
-# tPIGfreq <- GJRM::gamlss(list(eq1), family = "tPIG", data = data_cop, offset = data_cop$exposure) 
-# 
-# print(AIC(tPfreq, tNBIfreq, tNBIIfreq, tPIGfreq))
-# print(BIC(tPfreq, tNBIfreq, tNBIIfreq, tPIGfreq))
-
-conv.check(tPfreq)
-res.check(tPfreq)
-summary(tPfreq)
-```
-
-
-## Fitting claim amount marginal distribution
-
-Claim severity was modelled using positive claim amounts only, where the data exhibits a strongly right-skewed distribution. Among the models tested, the Inverse Gaussian distribution provides the best fit, achieving the lowest AIC and BIC values. Model diagnostics indicate satisfactory convergence near zero and a positive definite information matrix.
-
-The Normal Q-Q plot shows a reasonable fit for the middle and upper quantiles, while the lower tail deviates from the diagonal line, indicating that the model underestimates very small claim amounts, but the overall fit is considered adequate for modelling dependence in the following copula analysis.
-
-
-```{r echo=FALSE}
-
-#claim severity distribution
-
-# LNsev <- GJRM::gamlss(list(eq2), family="LN", data=data_cop)
-# IGsev <- GJRM::gamlss(list(eq2), family="IG", data=data_cop)
-# GAsev <- GJRM::gamlss(list(eq2), family="GA", data=data_cop)
-# 
-# WEIsev <- GJRM::gamlss(list(eq2), family="WEI", data=data_cop)
-# SMsev <- GJRM::gamlss(list(eq2), family="SM", data=data_cop)
-# FISKsev <- GJRM::gamlss(list(eq2), family="FISK", data=data_cop)
-# DAGUMsev <- GJRM::gamlss(list(eq2), family="DAGUM", data=data_cop)
-# 
-# print(AIC(DAGUMsev, LNsev, WEIsev, IGsev, GAsev, SMsev, FISKsev))
-# print(BIC(DAGUMsev, LNsev, WEIsev, IGsev, GAsev, SMsev, FISKsev))
-# 
-# conv.check(IGsev)
-# res.check(IGsev)
-# summary(IGsev)
-
-```
-
-
-## Joint regression with copula
-
-(TODO)
-
-```{r echo=FALSE}
-
-###fitting copula
-# ZTPIGN <- gjrm(list(eq1, eq2, ~1, ~1), data = data_cop, margin = c("tP", "IG"), model = "B", copula = "N")
-# ZTPIGT <- gjrm(list(eq1, eq2, ~1, ~1), data = data_cop, margin = c("tP", "IG"), model = "B", copula = "T")
-
-# print(AIC(ZTPIGN, ZTPIGT))
-```
 
 ```{=latex}
 \newpage
@@ -831,14 +748,14 @@ knitr::kable(
 ```
 
 
-```{r ts2-aicbic, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Top 5 ARIMA models for time series 2 ranked by AIC and BIC", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='45%'}
+```{r ts2-aicbic, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Top 5 ARIMA models for time series 2 ranked by AIC and BIC", tab.show='hold', tab.align='center', tab.width=6.2, tab.height=3, tab.pos='H', out.width='45%'}
 ts2.top5.aic <- ts2.perfs |> arrange(AIC) |> head(5)
 
 knitr::kable(
   ts2.top5.aic,
   digits = 3,
   align = "c",
-  caption = "Top 5 ARIMA models for time series 1 ranked by AIC",
+  caption = "Top 5 ARIMA models for time series 2 ranked by AIC",
   booktabs = TRUE
 ) |> 
   kable_styling(latex_options = "hold_position")
@@ -849,14 +766,14 @@ knitr::kable(
   ts2.top5.bic,
   digits = 3,
   align = "c",
-  caption = "Top 5 ARIMA models for time series 1 ranked by BIC",
+  caption = "Top 5 ARIMA models for time series 2 ranked by BIC",
   booktabs = TRUE
 ) |> 
   kable_styling(latex_options = "hold_position")
 
 ```
 
-```{r ts3-aicbic, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Top 5 ARIMA models for time series 3 ranked by AIC and BIC", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='45%'}
+```{r ts3-aicbic, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Top 5 ARIMA models for time series 3 ranked by AIC and BIC", tab.show='hold', fig.align='center', tab.width=6.2, tab.height=3, tab.pos='H', out.width='45%'}
 
 ts3.top5.aic <- ts3.perfs |> arrange(AIC) |> head(5)
 
@@ -864,7 +781,7 @@ knitr::kable(
   ts3.top5.aic,
   digits = 3,
   align = "c",
-  caption = "Top 5 ARIMA models for time series 1 ranked by AIC",
+  caption = "Top 5 ARIMA models for time series 3 ranked by AIC",
   booktabs = TRUE
 ) |> 
   kable_styling(latex_options = "hold_position")
@@ -874,7 +791,7 @@ knitr::kable(
   ts3.top5.bic,
   digits = 3,
   align = "c",
-  caption = "Top 5 ARIMA models for time series 1 ranked by BIC",
+  caption = "Top 5 ARIMA models for time series 3 ranked by BIC",
   booktabs = TRUE
 ) |> 
   kable_styling(latex_options = "hold_position")
