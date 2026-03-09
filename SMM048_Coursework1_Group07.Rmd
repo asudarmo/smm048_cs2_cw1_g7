@@ -8,8 +8,6 @@ author:
   - Yeng Issah
 date: "`r format(Sys.Date(), '%d %B %Y')`"
 output:
-  bookdown::html_document2:
-    self_contained: true
   bookdown::pdf_document2:
     #  - "--lua-filter=answer.lua"
     latex_engine: xelatex
@@ -27,6 +25,8 @@ output:
     theme: united
     highlight: tango
     df_print: paged
+  bookdown::html_document2:
+    self_contained: true
 #bibliography: references.bib
 ---
 ```{=latex}
@@ -653,7 +653,201 @@ kable(
 \newpage
 ```
 
-# Time seires
+# Time series
+
+
+```{r Q4, echo=FALSE}
+
+df4 <- read.table("ARIMAsim2.dat", header = TRUE)
+
+ts1 <- ts(df4$ts1)
+ts2 <- ts(df4$ts2)
+ts3 <- ts(df4$ts3)
+
+```
+
+
+```{r echo=FALSE}
+
+ps <- integer(6^2)
+qs <- integer(6^2)
+aics <- numeric(6^2)
+bics <- numeric(6^2)
+idx <- 1
+
+for (p in 0:5) {
+  for (q in 0:5) {
+    m <- arima(ts1, c(p,0,q))
+    ps[idx] <- p
+    qs[idx] <- q
+    aics[idx] <- AIC(m)
+    bics[idx] <- BIC(m)
+    idx <- idx +1
+  }
+}
+
+ts1.perfs <- data.frame(
+  p = ps,
+  q = qs,
+  AIC = aics,
+  BIC = bics
+)
+
+
+
+```
+
+```{r echo=FALSE}
+
+ps2 <- integer(6^2)
+qs2 <- integer(6^2)
+aics2 <- numeric(6^2)
+bics2 <- numeric(6^2)
+idx2 <- 1
+
+for (p in 0:5) {
+  for (q in 0:5) {
+    m2 <- arima(ts2, c(p,0,q))
+    ps2[idx2] <- p
+    qs2[idx2] <- q
+    aics2[idx2] <- AIC(m2)
+    bics2[idx2] <- BIC(m2)
+    idx2 <- idx2 + 1
+  }
+}
+
+ts2.perfs <- data.frame(
+  p = ps2,
+  q = qs2,
+  AIC = aics2,
+  BIC = bics2
+)
+
+
+
+```
+
+
+```{r echo=FALSE}
+
+ps3 <- integer(6^2)
+qs3 <- integer(6^2)
+aics3 <- numeric(6^2)
+bics3 <- numeric(6^2)
+idx3 <- 1
+
+for (p in 0:5) {
+  for (q in 0:5) {
+    m3 <- arima(ts3, c(p,1,q))
+    ps3[idx3] <- p
+    qs3[idx3] <- q
+    aics3[idx3] <- AIC(m3)
+    bics3[idx3] <- BIC(m3)
+    idx3 <- idx3 + 1
+  }
+}
+
+ts3.perfs <- data.frame(
+  p = ps3,
+  q = qs3,
+  AIC = aics3,
+  BIC = bics3
+)
+
+
+
+```
+
+
+## Tables and Figures for Q4
+
+```{r ts1_aic, echo=FALSE}
+ts1.top5.aic <- ts1.perfs |> arrange(AIC) |> head(5)
+
+knitr::kable(
+  ts1.top5.aic,
+  digits = 3,
+  align = "c",
+  #caption = "Top 5 ARIMA models for time series 1 ranked by AIC",
+  booktabs = TRUE
+) |> 
+  kable_styling(latex_options = "hold_position")
+```
+
+```{r ts1_bic, echo=FALSE}
+
+ts1.top5.bic <- ts1.perfs |> arrange(BIC) |> head(5)
+
+knitr::kable(
+  ts1.top5.bic,
+  digits = 3,
+  align = "c",
+  #caption = "Top 5 ARIMA models for time series 1 ranked by BIC",
+  booktabs = TRUE
+) |> 
+  kable_styling(latex_options = "hold_position")
+```
+
+
+
+```{r ts2_aic, echo=FALSE}
+ts2.top5.aic <- ts2.perfs |> arrange(AIC) |> head(5)
+
+knitr::kable(
+  ts2.top5.aic,
+  digits = 3,
+  align = "c",
+  #caption = "Top 5 ARIMA models for time series 1 ranked by AIC",
+  booktabs = TRUE
+) |> 
+  kable_styling(latex_options = "hold_position")
+```
+
+```{r ts2_bic, echo=FALSE}
+
+ts2.top5.bic <- ts2.perfs |> arrange(BIC) |> head(5)
+
+knitr::kable(
+  ts2.top5.bic,
+  digits = 3,
+  align = "c",
+  #caption = "Top 5 ARIMA models for time series 1 ranked by BIC",
+  booktabs = TRUE
+) |> 
+  kable_styling(latex_options = "hold_position")
+```
+
+
+```{r ts3_aic, echo=FALSE}
+
+ts3.top5.aic <- ts3.perfs |> arrange(AIC) |> head(5)
+
+knitr::kable(
+  ts3.top5.aic,
+  digits = 3,
+  align = "c",
+  #caption = "Top 5 ARIMA models for time series 1 ranked by AIC",
+  booktabs = TRUE
+) |> 
+  kable_styling(latex_options = "hold_position")
+```
+
+
+```{r ts3_bic, echo=FALSE}
+
+ts3.top5.bic <- ts3.perfs |> arrange(BIC) |> head(5)
+
+knitr::kable(
+  ts3.top5.bic,
+  digits = 3,
+  align = "c",
+  #caption = "Top 5 ARIMA models for time series 1 ranked by BIC",
+  booktabs = TRUE
+) |> 
+  kable_styling(latex_options = "hold_position")
+```
+
+
 
 # Appendix
 
@@ -795,7 +989,7 @@ kable(
 \newpage
 ```
 
-## bonus : Q2 Coupla
+## bonus : Q2 Copula
 
 
 ### Goodness-of-fit tests
