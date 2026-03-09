@@ -13,14 +13,14 @@ eq1 <- numclaims ~ 1
 eq2 <- claimcst0 ~ 1
 
 #bonus version
-eq3 <- numclaims ~ veh_age + veh_body 
-eq4 <- claimcst0 ~ veh_age + veh_body 
+eq3 <- numclaims ~ veh_value
+eq4 <- claimcst0 ~ veh_value
 
-eq5 <- numclaims ~ veh_age + veh_body + gender
-eq6 <- claimcst0 ~ veh_age + veh_body + gender 
+eq5 <- numclaims ~ veh_value + area
+eq6 <- claimcst0 ~ veh_value + area
 
-eq7 <- numclaims ~ veh_age + veh_body + gender + area
-eq8 <- claimcst0 ~ veh_age + veh_body + gender + area
+eq7 <- numclaims ~ veh_value + area + gender
+eq8 <- claimcst0 ~ veh_value + area + gender
 
 tPfreq <- GJRM::gamlss(list(eq1), family = "tP", data = data_cop, offset = data_cop$exposure)
 IGsev <- GJRM::gamlss(list(eq2), family="IG", data=data_cop)
