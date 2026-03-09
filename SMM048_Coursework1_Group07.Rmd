@@ -652,9 +652,7 @@ kable(
 ```{=latex}
 \newpage
 ```
-
-# Time series
-
+# Time seires
 
 ```{r Q4, echo=FALSE}
 
@@ -758,23 +756,66 @@ ts3.perfs <- data.frame(
 
 ```
 
+```{r, include=FALSE}
 
-## Tables and Figures for Q4
+library(forecast)
+library(sarima)
+library(tseries)
+dat <- read.table("ARIMAsim2.dat", header = TRUE)
+colnames(dat) <- c("ts1", "ts2", "ts3")
 
-```{r ts1_aic, echo=FALSE}
+ts1 <- ts(dat$ts1)
+ts2 <- ts(dat$ts2)
+ts3 <- ts(dat$ts3)
+
+adf.test(ts1)
+adf.test(ts2)
+adf.test(ts3)
+names(adf.test(ts3))
+
+ts1.aa.202 <- auto.arima(ts1)
+ts2.aa.203 <- auto.arima(ts2)
+ts3.aa.210 <- auto.arima(ts3)
+
+```
+
+The time plots and Augmented Dickey–Fuller (ADF) tests were used to assess the stationarity and identify suitable ARIMA models for the three series. As shown in Figure \@ref(fig:q41), ts1 fluctuates around a roughly constant mean and variance, indicating stationarity, and information criteria suggest that `r paste0("ARIMA(", ts1.aa.202$arma[1], ",", ts1.aa.202$arma[6], ",", ts1.aa.202$arma[2], ")")` with non-zero mean provides the best fit. For ts2, although the series appears similar to white noise from the time plot, model estimation indicates that `r paste0("ARIMA(", ts2.aa.203$arma[1], ",", ts2.aa.203$arma[6], ",", ts2.aa.203$arma[2], ")")` with zero mean better captures the weak short-term dependence. In contrast, ts3 exhibits non-stationary behaviour, and the ADF test confirms this (p-value = `r adf.test(ts3)$p.value`), so differencing was applied and `r paste0("ARIMA(", ts3.aa.210$arma[1], ",", ts3.aa.210$arma[6], ",", ts3.aa.210$arma[2], ")")` was fitted, shown in table \@ref(tab:q42)
+
+T1: The diagnostic plots for the fitted ARIMA(2,0,2) model for ts1 are shown in Figure \@ref(fig:q43). The residual ACF and PACF display no significant spikes outside the confidence bounds, suggesting that no substantial autocorrelation remains in the residuals. The Q–Q plot in Figure \@ref(fig:q44) indicates that the residuals are approximately normally distributed. In addition, the standardized residuals fluctuate randomly around zero with roughly constant variance. Overall, these diagnostics suggest that the ARIMA(2,0,2) model provides an adequate fit for ts1, as illustrated in Figure \@ref(fig:q45).
+
+T2: The time plot and ACF/PACF diagnostics for ts2 are presented in Figure \@ref(fig:q46). Although the series appears similar to white noise from the time plot, the autocorrelation structure suggests the presence of short-term dependence. Based on model estimation and information criteria, an ARIMA(2,0,3) model with zero mean was selected for ts2. The residual diagnostics indicate that most autocorrelations lie within the confidence bounds and the standardized residuals fluctuate randomly around zero. Furthermore, the Q–Q plot in Figure \@ref(fig:q47) suggests that the residuals are approximately normally distributed, and overall the diagnostics indicate that the fitted model provides an adequate description of ts2, as shown in Figure \@ref(fig:q48).
+
+T3: The ACF and PACF plots for ts3, shown in Figure \@ref(fig:q49), indicate a clear dependence structure in the series. Based on these diagnostics and model estimation, an ARIMA(2,1,0) model was selected to capture the non-stationary behaviour of ts3. The Q–Q plot in Figure \@ref(fig:q491) suggests that the residuals are approximately normally distributed. Furthermore, as shown in Figure \@ref(fig:q492), the standardized residuals fluctuate randomly around zero and the residual ACF shows no significant autocorrelation. The Ljung–Box test results also support the conclusion that the residuals behave like white noise, indicating that the fitted model provides an adequate description of the series.
+
+
+```{r q4forecast, echo=FALSE, fig.cap="Forecast time series.",fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='45%'}
+
+library(forecast)
+ts1.arima.202 <- arima(ts1, c(2,0,2))
+ts2.arima.203 <- arima(ts2, c(2,0,3))
+ts3.arima.210 <- arima(ts3, c(2,1,0))
+# plot(forecast(ts1.arima.202))
+# plot(forecast(ts2.arima.203))
+# plot(forecast(ts3.arima.210))
+
+```
+
+  
+
+## Figures and tables for Q4
+
+```{r ts1-aicbic, echo=FALSE, message=FALSE, warning=FALSE, tab.cap="Top 5 ARIMA models for time series 1 ranked by AIC and BIC", tab.show='hold', tab.align='center', tab.width=6.2, tab.height=3, tab.pos='H', out.width='45%'}
+
 ts1.top5.aic <- ts1.perfs |> arrange(AIC) |> head(5)
 
 knitr::kable(
   ts1.top5.aic,
   digits = 3,
   align = "c",
-  #caption = "Top 5 ARIMA models for time series 1 ranked by AIC",
+  caption = "Top 5 ARIMA models for time series 1 ranked by AIC",
   booktabs = TRUE
 ) |> 
   kable_styling(latex_options = "hold_position")
-```
-
-```{r ts1_bic, echo=FALSE}
 
 ts1.top5.bic <- ts1.perfs |> arrange(BIC) |> head(5)
 
@@ -782,28 +823,25 @@ knitr::kable(
   ts1.top5.bic,
   digits = 3,
   align = "c",
-  #caption = "Top 5 ARIMA models for time series 1 ranked by BIC",
+  caption = "Top 5 ARIMA models for time series 1 ranked by BIC",
   booktabs = TRUE
 ) |> 
   kable_styling(latex_options = "hold_position")
+
 ```
 
 
-
-```{r ts2_aic, echo=FALSE}
+```{r ts2-aicbic, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Top 5 ARIMA models for time series 2 ranked by AIC and BIC", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='45%'}
 ts2.top5.aic <- ts2.perfs |> arrange(AIC) |> head(5)
 
 knitr::kable(
   ts2.top5.aic,
   digits = 3,
   align = "c",
-  #caption = "Top 5 ARIMA models for time series 1 ranked by AIC",
+  caption = "Top 5 ARIMA models for time series 1 ranked by AIC",
   booktabs = TRUE
 ) |> 
   kable_styling(latex_options = "hold_position")
-```
-
-```{r ts2_bic, echo=FALSE}
 
 ts2.top5.bic <- ts2.perfs |> arrange(BIC) |> head(5)
 
@@ -811,14 +849,14 @@ knitr::kable(
   ts2.top5.bic,
   digits = 3,
   align = "c",
-  #caption = "Top 5 ARIMA models for time series 1 ranked by BIC",
+  caption = "Top 5 ARIMA models for time series 1 ranked by BIC",
   booktabs = TRUE
 ) |> 
   kable_styling(latex_options = "hold_position")
+
 ```
 
-
-```{r ts3_aic, echo=FALSE}
+```{r ts3-aicbic, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Top 5 ARIMA models for time series 3 ranked by AIC and BIC", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='45%'}
 
 ts3.top5.aic <- ts3.perfs |> arrange(AIC) |> head(5)
 
@@ -826,27 +864,168 @@ knitr::kable(
   ts3.top5.aic,
   digits = 3,
   align = "c",
-  #caption = "Top 5 ARIMA models for time series 1 ranked by AIC",
+  caption = "Top 5 ARIMA models for time series 1 ranked by AIC",
   booktabs = TRUE
 ) |> 
   kable_styling(latex_options = "hold_position")
-```
-
-
-```{r ts3_bic, echo=FALSE}
-
 ts3.top5.bic <- ts3.perfs |> arrange(BIC) |> head(5)
 
 knitr::kable(
   ts3.top5.bic,
   digits = 3,
   align = "c",
-  #caption = "Top 5 ARIMA models for time series 1 ranked by BIC",
+  caption = "Top 5 ARIMA models for time series 1 ranked by BIC",
   booktabs = TRUE
 ) |> 
   kable_styling(latex_options = "hold_position")
+
 ```
 
+```{r q41, echo=FALSE, fig.cap="Time plots of the three simulated series"}
+
+dat <- read.table("ARIMAsim2.dat", header = FALSE)
+colnames(dat) <- c("ts1", "ts2", "ts3")
+
+ts1 <- ts(dat$ts1)
+ts2 <- ts(dat$ts2)
+ts3 <- ts(dat$ts3)
+
+# Plot the series
+par(
+  mfrow = c(3,1),
+  mar = c(2,3,2,1),
+  cex.main = 1,
+  cex.axis = 0.8
+)
+
+plot(ts1, type="l", col="blue", lwd=1.5,
+     main="ts1", ylab="")
+
+plot(ts2, type="l", col="red", lwd=1.5,
+     main="ts2", ylab="")
+
+plot(ts3, type="l", col="darkgreen", lwd=1.5,
+     main="ts3", ylab="")
+
+```
+
+```{r q42, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+
+library(tseries)
+library(forecast)
+library(knitr)
+
+dat <- read.table("ARIMAsim2.dat", header = TRUE)
+
+ts1 <- ts(dat$ts1)
+ts2 <- ts(dat$ts2)
+ts3 <- ts(dat$ts3)
+
+# ADF tests
+adf1 <- adf.test(ts1)
+adf2 <- adf.test(ts2)
+adf3 <- adf.test(ts3)
+
+# auto.arima models
+m1 <- auto.arima(ts1)
+m2 <- auto.arima(ts2)
+m3 <- auto.arima(ts3)
+
+# summary table
+results <- data.frame(
+  Series = c("ts1","ts2","ts3"),
+  ADF_statistic = c(adf1$statistic, adf2$statistic, adf3$statistic),
+  p_value = c(adf1$p.value, adf2$p.value, adf3$p.value),
+  ARIMA_model = c(arimaorder(m1), arimaorder(m2), arimaorder(m3))
+)
+
+kable(results, digits = 3, caption = "ADF tests and suggested ARIMA models") %>%
+  kable_styling(latex_options = c("hold_position"))
+```
+
+```{r q43, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="ACF vs PACF", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='45%'}
+
+ts1.arima.202 <- arima(ts1, c(2,0,2))
+
+acf(resid(ts1.arima.202))
+pacf(resid(ts1.arima.202))
+acf(ts1)
+pacf(ts1)
+
+```
+
+```{r q44, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="QQPLOT", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='90%'}
+
+qqnorm(resid(ts1.arima.202))
+qqline(resid(ts1.arima.202))
+
+
+```
+
+```{r q45, echo=FALSE, message=FALSE, warning=FALSE, , fig.cap="Diagnostic plots for the fitted ARIMA(2,0,2) model for ts1, including standardized residuals, residual ACF, and Ljung–Box test results.", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='45%'}
+
+tsdiag.Sarima(ts1.arima.202, plot = 1)
+tsdiag.Sarima(ts1.arima.202, plot = 2)
+tsdiag.Sarima(ts1.arima.202, plot = 3)
+
+```
+
+```{r q46, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="ACF vs PACF", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='45%'}
+
+ts2.arima.203 <- arima(ts2, c(2,0,3))
+
+acf(resid(ts2.arima.203))
+pacf(resid(ts2.arima.203))
+acf(ts2)
+pacf(ts2)
+
+```
+
+```{r q47, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="QQPLOT", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='90%'}
+
+qqnorm(resid(ts2.arima.203))
+qqline(resid(ts2.arima.203))
+
+
+```
+
+```{r q48, echo=FALSE, message=FALSE, warning=FALSE, , fig.cap="Diagnostic plots for the fitted ARIMA(2,0,3) model for ts2, including standardized residuals, residual ACF, and Ljung–Box test results.", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='45%'}
+
+tsdiag.Sarima(ts2.arima.203, plot = 1)
+tsdiag.Sarima(ts2.arima.203, plot = 2)
+tsdiag.Sarima(ts2.arima.203, plot = 3)
+
+```
+
+```{r q49, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="ACF vs PACF", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='45%'}
+
+ts3.arima.210 <- arima(ts3, c(2,1,0))
+
+acf(resid(ts3.arima.210))
+pacf(resid(ts3.arima.210))
+acf(ts3)
+pacf(ts3)
+
+```
+
+```{r q491, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="QQPLOT", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='90%'}
+
+qqnorm(resid(ts3.arima.210))
+qqline(resid(ts3.arima.210))
+
+```
+
+```{r q492, echo=FALSE, message=FALSE, warning=FALSE, , fig.cap="Diagnostic plots for the fitted ARIMA(2,1,0) model for ts3, including standardized residuals, residual ACF, and Ljung–Box test results.", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='45%'}
+
+tsdiag.Sarima(ts3.arima.210, plot = 1)
+tsdiag.Sarima(ts3.arima.210, plot = 2)
+tsdiag.Sarima(ts3.arima.210, plot = 3)
+
+```
+
+```{=latex}
+\newpage
+```
 
 
 # Appendix
