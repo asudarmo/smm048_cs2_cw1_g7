@@ -8,8 +8,6 @@ author:
   - Yeng Issah
 date: "`r format(Sys.Date(), '%d %B %Y')`"
 output:
-  bookdown::html_document2:
-    self_contained: true
   bookdown::pdf_document2:
     #  - "--lua-filter=answer.lua"
     latex_engine: xelatex
@@ -27,6 +25,8 @@ output:
     theme: united
     highlight: tango
     df_print: paged
+  bookdown::html_document2:
+    self_contained: true
 #bibliography: references.bib
 ---
 ```{=latex}
@@ -297,7 +297,7 @@ Table \@ref(tab:q1table) showes from 0.27 to 0.83, with an average of approximat
 ```
 
 
-# copula analysis
+# Copula analysis
 
 ```{r Q2, echo=knitr::is_html_output(), include=TRUE}
 # library(GJRM)
@@ -313,10 +313,7 @@ data_cop <- subset(dataCar,
 
 ```
 
-Noting that the majority of claims amount is zero in the dataset (~93.2% of 67856 records), we initially considered two broad approaches for the analyis.
-The first method is to retain all zero-claims data, and fit the marginal distribution of claim amount using Tweedie, which can model mixed distribution with probability mass at 0. However, we could not pursue this due to limitation in the GJRM library as it currently does not support the joint regression between Poisson with Tweedie margins. (For more details with the technical difficulties encountered, please refer to the appendix).
-
-The second method is to truncate the zero-claims data and and then model the strictly positive claim amounts from a wider selection of distributions. The business justification is that insurers model claims to monitor pricing and reserving assumption so they are less interested in zero-claims. The rest of the report for Q2 summarizes the results of the second method.
+As the majority of claim amounts are zero in the dataset (approximately 93.2% of 67,856 records), two approaches were initially considered. The first approach retains all observations and models claim amounts using a Tweedie distribution, which accommodates mixed distributions with probability mass at zero. However, this approach could not be implemented because the current GJRM library does not support joint regression combining Poisson frequency with Tweedie severity margins (see Appendix for details). The second approach truncates zero-claim observations and models strictly positive claim amounts using alternative continuous distributions. This is also consistent with actuarial practice, where the focus is typically on modelling positive claims for pricing and reserving purposes. The remainder of Question 2 therefore adopts the second approach.
 
 ## Marginal Distributions Selection
 
@@ -328,7 +325,7 @@ Claim severity was modelled using positive claim amounts only. The distribution 
 
 The fitted Inverse Gaussian model implies an average positive claim severity of approximately $\hat{μ}=e^{7.60808} = 2011$, with variability increasing with the cube of the mean, which indicates the heavy right tail commonly observed in claim severity data.
 
-Both graphical and statistical methods are used for model diagnostic. Additional goodness-of-fit tests analysis are in [Goodness-of-fit tests].
+Both graphical and statistical methods are used for model diagnostic. Additional goodness-of-fit tests analysis are in [Goodness-of-fit tests][Goodness-of-fit tests] section of the appendix.
 The Q–Q plots obtained from `res.check()` show that the truncated Poisson model provides a satisfactory representation of claim frequency, while the inverse Gaussian distribution captures the overall shape of the severity distribution. Although the lower tail appears to deviate from the diagonal line, indicating that the model underestimates very small claim amounts, the overall fit is considered adequate for modelling dependence in the following copula analysis. [Refer to residual quantile QQ plot of marginal distributions fits here]
 
 Convergence diagnostics also indicate stable estimation. In both marginal models the maximum absolute gradient is close to zero, 2.592529e-06 and 9.256606e-13, respectively, and the observed information matrix is positive definite, confirming that the likelihood optimisation has successfully converged.
@@ -708,7 +705,7 @@ ts3.aa.210 <- auto.arima(ts3)
 ```
 
 ## Description of time series:
-We first plotted the three time series (ts1, ts2 and ts3) and visually assessed the stationarity of each. The plots for ts1 and ts2 suggest they are stationary as they exhibit constant mean and variances, without trend nor seasonality. However, the plot for ts3 suggests non-stationarity with evidence of trend. Formal stationarity test such as Augmented Dickey–Fuller (ADF) tests confirmed these: the p-values for ts3 is large (0.7322), so the null hypothesis of non-stationarity cannot be rejected, whereas the p-values for ts1 and ts2 are smaller than 0.01.
+We first plotted the three time series (ts1, ts2 and ts3) and visually assessed the stationarity of each. The plots for ts1 (\@ref(fig:q41)) and ts2 suggest they are stationary as they exhibit constant mean and variances, without trend nor seasonality. However, the plot for ts3 suggests non-stationarity with evidence of trend. Formal stationarity test such as Augmented Dickey–Fuller (ADF) tests confirmed these: the p-values for ts3 is large (0.7322), so the null hypothesis of non-stationarity cannot be rejected, whereas the p-values for ts1 and ts2 are smaller than 0.01.
 
 ## Model selection
 
@@ -718,28 +715,22 @@ Model selection heuristics:
 2. Manually fit Arima models for possible combinations of p and q (from 0 to 5 inclusive each), and consider the top 5 models ranked by AIC and BIC.
 3. Check residuals for models with smaller BIC or AIC than the baseline. The most parsimonious model with satisfactory residuals is then selected.
 
+The final models selected for each time series is:
+
 TS1: (2,0,1) is selected over (2,0,2) suggested by auto.arima because of better AIC and BIC, i.e better fit and simpler.
 
-TS2:
-
-- (2, 0, 3) is suggested by auto.arima
-- (0, 0, 2): Ljung-box statistics suggest data exhibit serial correlation
-- (1, 0, 2): Ljung-box statistics suggest data exhibit serial correlation
-- (0, 0, 3): Ljung-box statistics suggest data exhibit serial correlation
-- (2, 0, 2): Ljung-box statistics suggest data exhibit serial correlation
-- (0, 0, 4): Ljung-box statistics suggest data exhibit serial correlation
+TS2: (2, 0, 3) as suggested by auto.arima is selected because other models with smaller BIC such as (0, 0, 2), (1, 0, 2) and (1, 0, 2) all exhibit serial correlation according to Ljung-Box tests.
 
 TS3: (2, 1, 0) from auto.arima already has the best AIC and BIC.
 
 
-## Bongsu
-The time plots and Augmented Dickey–Fuller (ADF) tests were used to assess the stationarity and identify suitable ARIMA models for the three series. As shown in Figure \@ref(fig:q41), ts1 fluctuates around a roughly constant mean and variance, indicating stationarity, and information criteria suggest that `r paste0("ARIMA(", ts1.aa.202$arma[1], ",", ts1.aa.202$arma[6], ",", ts1.aa.202$arma[2], ")")` with non-zero mean provides the best fit. For ts2, although the series appears similar to white noise from the time plot, model estimation indicates that `r paste0("ARIMA(", ts2.aa.203$arma[1], ",", ts2.aa.203$arma[6], ",", ts2.aa.203$arma[2], ")")` with zero mean better captures the weak short-term dependence. In contrast, ts3 exhibits non-stationary behaviour, and the ADF test confirms this (p-value = `r adf.test(ts3)$p.value`), so differencing was applied and `r paste0("ARIMA(", ts3.aa.210$arma[1], ",", ts3.aa.210$arma[6], ",", ts3.aa.210$arma[2], ")")` was fitted, shown in table \@ref(tab:q42)
+## Model Diagnostics
 
-T1: The diagnostic plots for the fitted ARIMA(2,0,2) model for ts1 are shown in Figure \@ref(fig:q43). The residual ACF and PACF display no significant spikes outside the confidence bounds, suggesting that no substantial autocorrelation remains in the residuals. The Q–Q plot in Figure \@ref(fig:q44) indicates that the residuals are approximately normally distributed. In addition, the standardized residuals fluctuate randomly around zero with roughly constant variance. Overall, these diagnostics suggest that the ARIMA(2,0,2) model provides an adequate fit for ts1, as illustrated in Figure \@ref(fig:q45).
+T1: The diagnostic plots for the fitted ARIMA(2,0,1) model for ts1 are shown in Figure \@ref(fig:q43). The residual ACF and PACF display no significant spikes outside the confidence bounds, suggesting that no substantial autocorrelation remains in the residuals. The Q–Q plot in Figure \@ref(fig:q44) indicates that the residuals are approximately normally distributed. In addition, the standardized residuals fluctuate randomly around zero with roughly constant variance. Overall, these diagnostics suggest that the ARIMA(2,0,2) model provides an adequate fit for ts1, as illustrated in Figure \@ref(fig:q45).
 
-T2: The time plot and ACF/PACF diagnostics for ts2 are presented in Figure \@ref(fig:q46). Although the series appears similar to white noise from the time plot, the autocorrelation structure suggests the presence of short-term dependence. Based on model estimation and information criteria, an ARIMA(2,0,3) model with zero mean was selected for ts2. The residual diagnostics indicate that most autocorrelations lie within the confidence bounds and the standardized residuals fluctuate randomly around zero. Furthermore, the Q–Q plot in Figure \@ref(fig:q47) suggests that the residuals are approximately normally distributed, and overall the diagnostics indicate that the fitted model provides an adequate description of ts2, as shown in Figure \@ref(fig:q48).
+T2: The residual diagnostics indicate that most autocorrelations lie within the confidence bounds and the standardized residuals fluctuate randomly around zero. Furthermore, the Q–Q plot in Figure \@ref(fig:q47) suggests that the residuals are approximately normally distributed, and overall the diagnostics indicate that the fitted model provides an adequate description of ts2, as shown in Figure \@ref(fig:q48).
 
-T3: The ACF and PACF plots for ts3, shown in Figure \@ref(fig:q49), indicate a clear dependence structure in the series. Based on these diagnostics and model estimation, an ARIMA(2,1,0) model was selected to capture the non-stationary behaviour of ts3. The Q–Q plot in Figure \@ref(fig:q491) suggests that the residuals are approximately normally distributed. Furthermore, as shown in Figure \@ref(fig:q492), the standardized residuals fluctuate randomly around zero and the residual ACF shows no significant autocorrelation. The Ljung–Box test results also support the conclusion that the residuals behave like white noise, indicating that the fitted model provides an adequate description of the series.
+T3: The Q–Q plot in Figure \@ref(fig:q491) suggests that the residuals are approximately normally distributed. Furthermore, as shown in Figure \@ref(fig:q492), the standardized residuals fluctuate randomly around zero and the residual ACF shows no significant autocorrelation. The Ljung–Box test results also support the conclusion that the residuals behave like white noise, indicating that the fitted model provides an adequate description of the series.
 
 
 ```{r q4forecast, echo=FALSE, fig.cap="Forecast time series.",fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='45%'}
