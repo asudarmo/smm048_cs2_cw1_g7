@@ -16,8 +16,8 @@ output:
     toc: true
     toc_depth: 3
     keep_tex: true
-    #includes:
-    #  in_header: preamble.tex
+    includes:
+      in_header: preamble.tex
     pandoc_args:
       - "--lua-filter=answer.lua"
   bookdown::html_document2:
@@ -118,8 +118,28 @@ lapply(packages, library, character.only = TRUE)
 ```
 # Factor Analysis
 
-An exploratory factor analysis (EFA) was conducted on the 25 personality items measured on a 6-point Likert scale. The dataset contained some missing values (NA), which were handled using listwise deletion. In addition, several negatively worded items (X1: empathy, X9: carelessness, X10: idleness, X11: quietness, 
-X12: aloofness, X22: avoidance, X25: superficiality) were reverse-coded so that higher values consistently represented higher levels of the underlying traits. 
+An exploratory factor analysis (EFA) was conducted on the 25 personality items measured on a 6-point Likert scale. Missing values (NA) were handled using listwise deletion. In addition, several negatively worded items (X1: empathy, X9: carelessness, X10: idleness, X11: quietness, X12: aloofness, X22: avoidance, and X25: superficiality) were reverse-coded so that higher values consistently represented higher levels of the underlying traits.
+
+To determine the appropriate number of factors, parallel analysis, principal component analysis (PCA), and the scree plot in Figure \@ref(fig:Q1plot1) were examined. The scree plot shows a sharp decline in eigenvalues for the first components (5.13, 2.75, 2.14, 1.85, 1.55, and 1.07). According to the Kaiser criterion (eigenvalue > 1), up to six components could be retained. However, the sixth eigenvalue is only slightly above the threshold, and the scree plot levels off after the fifth component, suggesting that additional components contribute little to explaining the overall variance. Considering these results, a five-factor solution was selected. For completeness, the comparison between the five- and six-component solutions obtained using PCA is provided in the Appendix.
+
+After determining the number of factors, the factor loading matrices were estimated and rotated to improve interpretability. Figure \@ref(fig:q1plot2) presents the rotated factor loading matrices obtained using both varimax and promax rotations. The two rotation methods produce broadly similar loading patterns, suggesting that the underlying factor structure is relatively stable. In most cases, items load strongly on a single factor, while cross-loadings across multiple factors remain limited. The promax rotation allows correlations between factors and produces slightly clearer clustering of items, although the overall interpretation of the factor structure remains consistent across the two rotation methods.
+
+The uniqueness values reported in Table \@ref(tab:q1table) ranges from 0.27 to 0.83, with an average of approximately 0.58. This indicates that the extracted factors explain a moderate proportion of the variance in the observed items. The rotated factor loadings reveal a clear five-factor structure consistent with widely recognised personality dimensions. Factor 1 loads strongly on items related to emotional instability (X16–X20), suggesting that this factor represents neuroticism. Factor 2 reflects extraversion, with items describing sociability and interpersonal engagement (X11–X15). Factor 3 corresponds to conscientiousness, capturing traits such as organisation, diligence, and careful work behaviour (X6–X10). Factor 4 represents agreeableness, including items related to empathy, cooperation, and concern for others (X2–X5). Finally, Factor 5 appears to capture openness-related characteristics, including curiosity, imagination, and intellectual engagement (X21–X23, X25). Overall, the factor analysis results provide empirical support for a five-factor personality structure within the dataset.
+
+$$
+\begin{aligned}
+\hat{f_1} &\text{: emotional instability} &\approx 0.82x_{16} + 0.79x_{17} + 0.71x_{18} + 0.56x_{19} + 0.52x_{20}\\
+\hat{f_2} &\text{: extraversion } &\approx 0.59x_{11} + 0.67x_{12} + 0.49X_{13} + 0.61x_{14} + 0.49x_{15}\\
+\hat{f_3} &\text{: conscientiousness } &\approx 0.53x_{6} + 0.62x_{7} + 0.55X_{8} + 0.65x_{9} + 0.57x_{10}\\
+\hat{f_4} &\text{: agreeableness } &\approx 0.60x_{2} + 0.66x_{3} + 0.45x_{4} + 0.58x_{5}\\
+\hat{f_5} &\text{: openness } &\approx 0.52x_{21} + 0.45x_{22} + 0.61x_{23} + 0.51x_{25} \\
+\end{aligned}
+$$
+
+Table \@ref(tab:q1table4) presents the rotated factor loadings obtained from the exploratory factor analysis, showing the relationship between the observed variables and the five latent factors. Larger absolute loading values indicate a stronger relationship between an observed variable and the corresponding latent factor. Using item X16 as an example, the loading for Factor 1 is 0.82, while the loadings on the other factors are close to zero, indicating that this item is primarily associated with Factor 1. This suggests that X16 strongly reflects the latent dimension represented by Factor 1. Since Factor 1 is characterised by items associated with emotional instability (X16–X20), it can be interpreted as representing the neuroticism dimension.
+$$
+X_{16} = 0.82Factor1 + 0.09Factor2-0.04Factor3-0.21Factor4-0.08Factor5 +e_{16}
+$$
 
 ```{r Q1_data, echo=knitr::is_html_output(), include=FALSE}
 ## R Markdown
@@ -160,9 +180,15 @@ var_label(data1_clean$X24) <- "Spend time reflecting on things"
 var_label(data1_clean$X25) <- "Will not probe deeply into a subject"
 ```
 
-To determine the appropriate number of factors, parallel analysis and the scree plot shown in  figure \@ref(fig:Q1plot1) were examined. The scree plot shows a sharp decline in eigenvalues for the first few components, with eigenvalues of 5.13, 2.75, 2.14, 1.85, 1.55, and 1.07 for the first six components. According to the Kaiser criterion (eigenvalue > 1), up to six components could be retained. However, the sixth eigenvalue (1.07) is very close to the threshold, and the scree plot begins to level off after the fifth component. Considering the overall results from the scree plot and parallel analysis, a five-factor solution was selected for the subsequent factor analysis.
 
-```{r Q1plot1, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=" parallel analysis and Scree plot for determining the number of factors", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=2.9, fig.pos='H', out.width='45%'}
+
+```{=latex}
+\newpage
+```
+
+## Figures and tables for Q1
+
+```{r Q1plot1, echo=FALSE, message=FALSE, warning=FALSE, fig.cap=" parallel analysis and Scree plot for determining the number of factors", fig.show='hold', fig.align='center', fig.pos='H', fig.width=6.2, fig.height=3, fig.pos='H', out.width='90%'}
 
 par(mar = c(4,4,1,1))
 # Scree plot
@@ -205,10 +231,9 @@ abline(h = 1, col = "red", lwd = 1.5, lty = 2)
 
 ```
 
-Figure \@ref(fig:q1plot2) shows the rotated factor loading matrices obtained using varimax and promax rotations. Both rotations produce broadly similar loading patterns, suggesting that the factor structure is stable. Most items load strongly on a single factor, with limited cross-loadings. The promax rotation allows correlations between factors and yields slightly clearer clustering of items. \textbf{Overall, the results support the five-factor solution selected from the scree plot and parallel analysis.}
 
 
-``` {r q1plot2, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Rotated Factor loadings(Varimax vs Promax)", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=2.9, fig.pos='H', out.width='45%'}
+``` {r q1plot2, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Rotated Factor loadings(Varimax vs Promax)", fig.show='hold', fig.align='center', fig.pos='H', fig.width=6.2, fig.height=3, fig.pos='H', out.width='90%'}
 
 
 fa5 <- factanal(
@@ -217,7 +242,6 @@ fa5 <- factanal(
   rotation = "varimax",
   scores   = "regression"
 )
-
 L  <- as.matrix(fa5$loadings)
 df <- as.data.frame(as.table(L))   # Var1=Item, Var2=Factor, Freq=Loading
 colnames(df) <- c("Item", "Factor", "Loading")
@@ -294,13 +318,62 @@ knitr::kable(
   kable_styling(latex_options = "hold_position")
 ```
 
-Table \@ref(tab:q1table) showes from 0.27 to 0.83, with an average of approximately 0.58, indicating that the extracted factors explain a moderate proportion of variance in the observed items. The rotated factor loadings reveal a clear five-factor structure. \textbf{Factor 1 loads strongly on items related to emotional instability}(X16–X20), suggesting neuroticism}. \textbf{Factor 2 reflects extraversion}, with items describing sociability and interpersonal engagement (X11–X15)}.\textbf{Factor 3 corresponds to conscientiousnes}, capturing organisation, diligence, and careful work behaviour (X6–X10), while \textbf{Factor 4 represents agreeableness}, including empathy and concern for others (X2–X5). Finally, \textbf{Factor 5 is associated with openness to experience}, reflecting intellectual curiosity and reflective thinking (X21–X25).
+
+``` {r q1table2, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+
+df5_matrix <- df %>%
+ mutate(
+    Factor = gsub("Factor", "F", Factor),
+    Factor = factor(Factor, levels = paste0("F", 1:5)),
+    Loading = ifelse(abs(Loading) >= 0.40, round(Loading, 2), NA)
+  ) %>%
+  pivot_wider(
+    names_from = Item,
+    values_from = Loading
+  ) %>%
+  arrange(Factor) %>%
+  mutate(across(-Factor, ~ifelse(is.na(.), "", sprintf("%.2f", .))))
+
+
+kable(
+  df5_matrix,
+  align = c("l", rep("c", ncol(df5_matrix)-1)),
+  caption = "Rotated Factor Loadings for 5 Factors (|loading| ≥ 0.40)",
+  booktabs = TRUE
+) %>%
+  kable_styling(
+    latex_options = c("hold_position", "scale_down"),
+    full_width = FALSE,
+    font_size = 9
+  )
+
+
+```
 
 ```{=latex}
 \newpage
 ```
 
+``` {r q1table4, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 
+fa5loading <- as.data.frame(unclass(fa5$loadings))
+fa5loading <- round(fa5loading, 2)
+# fa5loading[abs(fa5loading) < 0.20] <- ""
+
+kable(
+  fa5loading,
+  booktabs = TRUE,
+  caption = "Rotated Factor Loadings"
+) %>%
+kable_styling(latex_options = "hold_position")
+
+
+
+```
+
+```{=latex}
+\newpage
+```
 # Copula analysis
 
 ```{r Q2, echo=knitr::is_html_output(), include=TRUE}
