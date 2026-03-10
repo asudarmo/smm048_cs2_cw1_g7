@@ -581,6 +581,7 @@ kable(
 ```{=latex}
 \newpage
 ```
+
 # Time series
 
 ```{r Q4, echo=FALSE}
@@ -708,6 +709,32 @@ ts3.aa.210 <- auto.arima(ts3)
 
 ```
 
+## Description of time series:
+We first plotted the three time series (ts1, ts2 and ts3) and visually assessed the stationarity of each. The plots for ts1 and ts2 suggest they are stationary as they exhibit constant mean and variances, without trend nor seasonality. However, the plot for ts3 suggests non-stationarity with evidence of trend. Formal stationarity test such as Augmented Dickey–Fuller (ADF) tests confirmed these: the p-values for ts3 is large (0.7322), so the null hypothesis of non-stationarity cannot be rejected, whereas the p-values for ts1 and ts2 are smaller than 0.01.
+
+## Model selection
+
+Model selection heuristics:
+
+1. Use auto.arima to pick p, d, q parameters as a baseline
+2. Manually fit Arima models for possible combinations of p and q (from 0 to 5 inclusive each), and consider the top 5 models ranked by AIC and BIC.
+3. Check residuals for models with smaller BIC or AIC than the baseline. The most parsimonious model with satisfactory residuals is then selected.
+
+TS1: (2,0,1) is selected over (2,0,2) suggested by auto.arima because of better AIC and BIC, i.e better fit and simpler.
+
+TS2:
+
+- (2, 0, 3) is suggested by auto.arima
+- (0, 0, 2): Ljung-box statistics suggest data exhibit serial correlation
+- (1, 0, 2): Ljung-box statistics suggest data exhibit serial correlation
+- (0, 0, 3): Ljung-box statistics suggest data exhibit serial correlation
+- (2, 0, 2): Ljung-box statistics suggest data exhibit serial correlation
+- (0, 0, 4): Ljung-box statistics suggest data exhibit serial correlation
+
+TS3: (2, 1, 0) from auto.arima already has the best AIC and BIC.
+
+
+## Bongsu
 The time plots and Augmented Dickey–Fuller (ADF) tests were used to assess the stationarity and identify suitable ARIMA models for the three series. As shown in Figure \@ref(fig:q41), ts1 fluctuates around a roughly constant mean and variance, indicating stationarity, and information criteria suggest that `r paste0("ARIMA(", ts1.aa.202$arma[1], ",", ts1.aa.202$arma[6], ",", ts1.aa.202$arma[2], ")")` with non-zero mean provides the best fit. For ts2, although the series appears similar to white noise from the time plot, model estimation indicates that `r paste0("ARIMA(", ts2.aa.203$arma[1], ",", ts2.aa.203$arma[6], ",", ts2.aa.203$arma[2], ")")` with zero mean better captures the weak short-term dependence. In contrast, ts3 exhibits non-stationary behaviour, and the ADF test confirms this (p-value = `r adf.test(ts3)$p.value`), so differencing was applied and `r paste0("ARIMA(", ts3.aa.210$arma[1], ",", ts3.aa.210$arma[6], ",", ts3.aa.210$arma[2], ")")` was fitted, shown in table \@ref(tab:q42)
 
 T1: The diagnostic plots for the fitted ARIMA(2,0,2) model for ts1 are shown in Figure \@ref(fig:q43). The residual ACF and PACF display no significant spikes outside the confidence bounds, suggesting that no substantial autocorrelation remains in the residuals. The Q–Q plot in Figure \@ref(fig:q44) indicates that the residuals are approximately normally distributed. In addition, the standardized residuals fluctuate randomly around zero with roughly constant variance. Overall, these diagnostics suggest that the ARIMA(2,0,2) model provides an adequate fit for ts1, as illustrated in Figure \@ref(fig:q45).
