@@ -7,16 +7,23 @@ author:
   - Yanwun Mak
   - Yeng Issah
 date: "`r format(Sys.Date(), '%d %B %Y')`"
+always_allow_html: true
 output:
+  
   bookdown::pdf_document2:
-    #  - "--lua-filter=answer.lua"
     latex_engine: xelatex
     citation_package: natbib
+    number_sections: true
+    toc: true
+    toc_depth: 3
     keep_tex: true
-    #includes:
-    #  in_header: preamble.tex
-    #pandoc_args:
-    #css: style.css
+    includes:
+      in_header: preamble.tex
+    pandoc_args:
+      - "--lua-filter=answer.lua"
+  bookdown::html_document2:
+    self_contained: true
+ #   css: style.css
     toc: true
     toc_float: true
     toc_depth: 3
@@ -25,9 +32,7 @@ output:
     theme: united
     highlight: tango
     df_print: paged
-  bookdown::html_document2:
-    self_contained: true
-#bibliography: references.bib
+# bibliography: references.bib
 ---
 ```{=latex}
 \newpage
