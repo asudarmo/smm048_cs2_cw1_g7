@@ -9,7 +9,6 @@ author:
 date: "`r format(Sys.Date(), '%d %B %Y')`"
 always_allow_html: true
 output:
-  
   bookdown::pdf_document2:
     latex_engine: xelatex
     citation_package: natbib
@@ -17,13 +16,13 @@ output:
     toc: true
     toc_depth: 3
     keep_tex: true
-    includes:
-      in_header: preamble.tex
+    #includes:
+    #  in_header: preamble.tex
     pandoc_args:
       - "--lua-filter=answer.lua"
   bookdown::html_document2:
     self_contained: true
- #   css: style.css
+#   css: style.css
     toc: true
     toc_float: true
     toc_depth: 3
@@ -318,35 +317,24 @@ data_cop <- subset(dataCar,
 
 ```
 
-As the majority of claim amounts are zero in the dataset (approximately 93.2% of 67,856 records), two approaches were initially considered. The first approach retains all observations and models claim amounts using a Tweedie distribution, which accommodates mixed distributions with probability mass at zero. However, this approach could not be implemented because the current GJRM library does not support joint regression combining Poisson frequency with Tweedie severity margins (see Appendix for details). The second approach truncates zero-claim observations and models strictly positive claim amounts using alternative continuous distributions. This is also consistent with actuarial practice, where the focus is typically on modelling positive claims for pricing and reserving purposes. The remainder of Question 2 therefore adopts the second approach.
+As the majority of claim amounts are zero in the dataset (approximately 93.2% of 67,856 records), two approaches were initially considered. The first approach retains all observations and models claim amounts using a Tweedie distribution, which accommodates mixed distributions with probability mass at zero. However, this approach could not be implemented because the current GJRM library does not support joint regression combining Poisson frequency with Tweedie severity margins. The second approach truncates zero-claim observations and models strictly positive claim amounts using alternative continuous distributions. This is also consistent with actuarial practice, where the focus is typically on modelling positive claims for pricing and reserving purposes. The remainder of Question 2 therefore adopts the second approach.
 
-## Marginal Distributions Selection
+Several truncated count models were considered to account for the absence of zero claims in the dataset, as shown in table \@ref(tab:Q2freqPerfTable). The **Truncated Poisson** model is preferred, having the lowest BIC and therefore the most parsimonious. Although the truncated Poisson–Inverse Gaussian specification produces the smallest AIC, the improvement is negligible ($\Delta$AIC $\approx$ 1.13). The selected model assumes that claims occur independently at a constant rate over the exposure period, with an estimated annual claim rate of $\hat{\mu}=e^{-2.66711}=0.0694$ indicating that claims arrive relatively infrequently in the portfolio.
 
-Several truncated count models were considered to account for the absence of zero claims in the dataset, as shown in table \@ref(tab:Q2freqPerfTable). Although the truncated Poisson–Inverse Gaussian specification produces the smallest AIC, the improvement relative to the truncated Poisson model is negligible. ($\Delta$AIC $\approx$ 1.13). The truncated Poisson model is therefore preferred as it achieves the lowest BIC, implying the simplest model.
+Claim severity was modelled using positive claim amounts only. Distribution is strongly right-skewed, indicating a small proportion of claims have extremely high severity. Among the models tested, the **Inverse Gaussian** distribution provides the best fit, achieving the lowest AIC and BIC values, as shown in table \@ref(tab:Q2sevPerfTable). It has an average positive claim severity of approximately $\hat{μ}=e^{7.60808} = 2011$, with variability increasing with the cube of the mean, consistent with the heavy right tail commonly observed in severity data.
 
-The fitted model implies represent claim arrivals under the assumption that claims occur independently at a constant rate over the exposure period with an estimated annual claim rate of $\hat{\mu}=e^{-2.66711}=0.0694$ claims per unit exposure, indicating that claims are relatively infrequent events in the portfolio.
+As an extension, we have also attempted to include covariates to model the marginal distribution parameters, but we did not see much improvement in the model AIC and BIC. For more details, please refer to  [`Adding covariates into the models`](#q2-add-covariates) section in the appendix.
 
-Claim severity was modelled using positive claim amounts only. The distribution of claim costs is strongly right-skewed, which is typical for insurance losses where a small number of claims account for disproportionately large costs. Among the models tested, the Inverse Gaussian distribution provides the best fit, achieving the lowest AIC and BIC values, as shown in table \@ref(tab:Q2sevPerfTable).
+Both graphical and statistical methods are used for model diagnostic. The residual quantile Q–Q plots show that the truncated Poisson model provides a satisfactory representation of claim frequency, while the inverse Gaussian distribution captures the overall shape of the severity distribution. Although the lower tail appears to deviate from the diagonal line, indicating that the model underestimates very small claim amounts, the overall fit is considered adequate for modelling dependence in the following copula analysis.[Refer to residual quantile QQ plot of marginal distributions fits here].
+Convergence diagnostics also indicate stable estimation. In both marginal models the maximum absolute gradient is close to zero and the observed information matrix is positive definite, confirming that the likelihood optimisation has successfully converged. Additional goodness-of-fit tests analysis we have done is discussed in [`Goodness-of-fit Tests`](#q2-gof-tests) section in the appendix.
 
-The fitted Inverse Gaussian model implies an average positive claim severity of approximately $\hat{μ}=e^{7.60808} = 2011$, with variability increasing with the cube of the mean, which indicates the heavy right tail commonly observed in claim severity data.
-
-Both graphical and statistical methods are used for model diagnostic. Additional goodness-of-fit tests analysis are in [Goodness-of-fit tests][Goodness-of-fit tests] section of the appendix.
-The Q–Q plots obtained from `res.check()` show that the truncated Poisson model provides a satisfactory representation of claim frequency, while the inverse Gaussian distribution captures the overall shape of the severity distribution. Although the lower tail appears to deviate from the diagonal line, indicating that the model underestimates very small claim amounts, the overall fit is considered adequate for modelling dependence in the following copula analysis. [Refer to residual quantile QQ plot of marginal distributions fits here]
-
-Convergence diagnostics also indicate stable estimation. In both marginal models the maximum absolute gradient is close to zero, 2.592529e-06 and 9.256606e-13, respectively, and the observed information matrix is positive definite, confirming that the likelihood optimisation has successfully converged.
-
-## Copula Selection
 To model the dependence between claim frequency and claim severity, four copula families were considered: Gaussian, Student-t, Clayton and Gumbel.
-The results are presented in table \@ref(tab:copulaPerfTable).
+The results are presented in table \@ref(tab:copulaPerfTable). Among these candidates, the Clayton copula provides the best fit, achieving the lowest AIC and BIC values by a clear margin. Convergence diagnostics confirm stable estimation, with a maximum gradient of $8.45 \times 10^{-6}$ and a positive definite information matrix.
+The estimated Clayton copula parameter is positive and statistically significant $\theta = 1.47$, indicating positive dependence between claim frequency and claim severity. It corresponds to a Kendall’s $\tau = \frac{\theta}{(\theta+2)} = 0.4236$, which indicates a moderate positive association between claim frequency and claim severity.
+We therefore fit **Clayton copula** with claytonCopula(param = 1.47, dim = 2).
 
-Among these candidates, the Clayton copula provides the best fit, achieving the lowest AIC and BIC values by a clear margin. Convergence diagnostics confirm stable estimation, with a maximum gradient of $8.45 \times 10^{-6}$ and a positive definite information matrix.
-The estimated Clayton copula parameter is positive and statistically significant $\theta = 1.47$  , indicating positive dependence between claim frequency and claim severity. It corresponds to a Kendall’s $\tau = \frac{\theta}{(\theta+2)} = 0.4236$, which indicates a moderate positive association between claim frequency and claim severity.
-We therefore fit Clayton copula with claytonCopula(param = 1.47, dim = 2).
-
-## Dependence Interpretation & Insurance Implication
-The Clayton copula captures lower-tail dependence, meaning that policies with relatively few claims tend to generate relatively small claim costs. This is reflected in the simulated scatter plot, where observations cluster in the lower-left region of the unit square. Such asymmetric dependence is captured more effectively by the Clayton copula than by symmetric copulas such as the Gaussian or Student-t, which impose identical dependence in both tails.
-In contrast, the poorer performance of the Gumbel copula in the previous section suggests weaker upper-tail dependence, meaning that extremely high claim counts are not systematically associated with extremely large claim amounts. This may reflect the heterogeneity of severe claims, where large losses can arise from factors such as accident type or medical costs rather than the number of claims alone. 
-Overall, the Clayton copula provides a flexible and interpretable representation of the dependence structure between claim frequency and claim severity, capturing the observed lower-tail association while avoiding unrealistic assumptions of symmetric dependence.
+The Clayton copula captures lower-tail dependence, meaning that policies with relatively few claims tend to generate relatively small claim costs. This is reflected in the simulated scatter plot, where observations cluster in the lower-left region of the unit square. Such asymmetric dependence cannot be captured effectively by symmetric copulas such as the Gaussian or Student-t, which impose identical dependence in both tails.
+The lower performance of the Gumbel copula in the previous section suggests weaker upper-tail dependence, meaning that extremely high claim counts are not systematically associated with extremely large claim amounts. This may reflect the heterogeneity of severe claims, where large losses can arise from factors such as accident type or medical costs rather than the number of claims alone. 
 
 
 
@@ -1124,15 +1112,14 @@ kable(
 ## bonus : Q2 Copula
 
 
-### Goodness-of-fit tests
+### Goodness-of-fit tests {#q2-gof-tests}
 Goodness-of-fit tests were conducted using the Kolmogorov–Smirnov (KS) and Cramér–von Mises (CvM) statistics. Null hypothesis is data follow the fitted marginal distribution.The KS statistic (D1=0.93707, D2=0.74048) measures the maximum difference between the empirical and theoretical cumulative distributions of zero truncated poisson and inverse gaussian, while the Cramér–von Mises statistic ($\omega_1^2 =1268.4$, $\omega_1^2=653.09$) measures the overall squared discrepancy across two distributions. Both tests reject the null hypothesis that the observed data follow the fitted distributions exactly (p-value < $2.2 \times 10^{-16}$). However, with a sample size of n = 4624, these tests are highly sensitive and may detect even minor deviations from the theoretical distribution. 
 
 
-### Adding covariates into the models
+### Adding covariates into the models {#q2-add-covariates}
 Additional models including covariates were explored to assess whether observable policy characteristics improve the marginal model specification. In particular, vehicle value, geographic area and gender were considered, as these variables may plausibly influence accident risk and claim costs. For example, vehicle value may affect repair costs, while area and gender may capture differences in driving behaviour or traffic exposure. In the claim frequency model, the intercept-only truncated Poisson specification achieves the lowest AIC and BIC compared to models with extra covariates. For the claim severity model, the inclusion of 4 extra covariates, including vehicle value, area and gender producing the lowest AIC. However, BIC again favours the simpler intercept-only specification. Overall, it is suggested that the additional covariates provide limited explanatory power in this dataset.
 
 [Put table here]
-[Put link in the main articles]
 
 
 ```{=latex}
