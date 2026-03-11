@@ -130,6 +130,15 @@ summary(ZTPIGC)
 ### fitting clayton copula 
 library(copula)
 
+
+u_data <- pobs(cbind(data_cop$numclaims, data_cop$claimcst0))
+
+plot(u_data,
+     main = "Pseudo-observations from observed data",
+     xlab = "U1", ylab = "U2",
+     pch = 16, cex = 0.6)
+
+
 theta_hat <- 1.47
 tau_hat   <- theta_hat / (theta_hat + 2)
 
