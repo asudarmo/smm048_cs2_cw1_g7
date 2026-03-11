@@ -773,33 +773,29 @@ ts3.aa.210 <- auto.arima(ts3)
 
 ```
 
-## Description of time series:
-We first plotted the three time series (ts1, ts2 and ts3) and visually assessed the stationarity of each. The plots for ts1 (\@ref(fig:q41)) and ts2 suggest they are stationary as they exhibit constant mean and variances, without trend nor seasonality. However, the plot for ts3 suggests non-stationarity with evidence of trend. Formal stationarity test such as Augmented Dickey–Fuller (ADF) tests confirmed these: the p-values for ts3 is large (0.7322), so the null hypothesis of non-stationarity cannot be rejected, whereas the p-values for ts1 and ts2 are smaller than 0.01.
+We first plotted the three time series (ts1, ts2 and ts3) and visually assessed the stationarity of each. The plots for ts1 (\@ref(fig:q41)) and ts2 suggest they are stationary as they exhibit roughly constant mean and variances, without trend nor seasonality. However, the plot for ts3 suggests non-stationarity with evidence of trend. Formal unit-root test such as Augmented Dickey–Fuller (ADF) confirmed these: the p-values for ts3 is large (0.7322), so the null hypothesis of non-stationarity cannot be rejected, whereas the p-values for ts1 and ts2 are smaller than 0.01.
 
-## Model selection
+Although we aware of the standard practice of inferring ARIMA parameters p and q from PACF and ACF, we find that they are not easy to apply when the time series have mixed AR and MA components. What we find easiest and most reliable is the following model selection procedure:
 
-Model selection heuristics:
+1. Use `auto.arima` to pick p, d, q parameters as a baseline model. The `auto.arima` function uses its own heuristics and use AIC (tehnically AICc, a version of AIC adjusted for small sample size, which in our case is not a concern) to measure model performance.
+2. Manually fit ARIMA models for possible combinations of p and q (from 0 to 5 inclusive each), and consider the top 5 models ranked by AIC and BIC. This is to complement `auto.arima`, which does not actually consider all possible combinations of p and q.
+3. Consider models with smaller BIC or AIC than the baseline `auto-arima` model. Since AIC as used by `auto-arima` tends to produce more complex models, we will try to find more parsimonious model by using BIC. (This is because BIC uses $k \cdot ln(n)$ as a penalty term which for our sample size $n=200$ is larger than $2k$ used by AIC). We have highlighted these candidate models in table \@ref(tab:ts1-aicbic) for ts1, table \@ref(tab:ts2-aicbic) for ts2 and table \@ref(tab:ts1-aicbic) for ts3.
+4. Check the residuals for `auto-arima` and other candidate models from step 3. The residuals should look like a white noise because any pattern should been modelled away. This can be done by checking the ACF and PACF plots of the residuals, as well as by performing Ljung-Box test. The most parsimonious model with satisfactory residual is then selected.
 
-1. Use auto.arima to pick p, d, q parameters as a baseline
-2. Manually fit Arima models for possible combinations of p and q (from 0 to 5 inclusive each), and consider the top 5 models ranked by AIC and BIC.
-3. Check residuals for models with smaller BIC or AIC than the baseline. The most parsimonious model with satisfactory residuals is then selected.
+Using the above steps we have selected the following models:
 
-The final models selected for each time series is:
+TS1: **ARIMA(2,0,1)** is selected over ARIMA(2,0,2) suggested by auto.arima because of better AIC and BIC, i.e better fit and more parsimonious.
 
-TS1: (2,0,1) is selected over (2,0,2) suggested by auto.arima because of better AIC and BIC, i.e better fit and simpler.
+TS2: **ARIMA(2,0,3)** as suggested by auto.arima is selected because other candidate models with smaller BIC all exhibit serial correlation according to Ljung-Box tests.
 
-TS2: (2, 0, 3) as suggested by auto.arima is selected because other models with smaller BIC such as (0, 0, 2), (1, 0, 2) and (1, 0, 2) all exhibit serial correlation according to Ljung-Box tests.
-
-TS3: (2, 1, 0) from auto.arima already has the best AIC and BIC.
+TS3: **ARIMA(2,1,0)** from auto.arima already has the best AIC and BIC.
 
 
-## Model Diagnostics
+The model residual diagnostics for the chosen models for each time series are all satisfactory:
 
-T1: The diagnostic plots for the fitted ARIMA(2,0,1) model for ts1 are shown in Figure \@ref(fig:q43). The residual ACF and PACF display no significant spikes outside the confidence bounds, suggesting that no substantial autocorrelation remains in the residuals. The Q–Q plot in Figure \@ref(fig:q44) indicates that the residuals are approximately normally distributed. In addition, the standardized residuals fluctuate randomly around zero with roughly constant variance. Overall, these diagnostics suggest that the ARIMA(2,0,2) model provides an adequate fit for ts1, as illustrated in Figure \@ref(fig:q45).
-
-T2: The residual diagnostics indicate that most autocorrelations lie within the confidence bounds and the standardized residuals fluctuate randomly around zero. Furthermore, the Q–Q plot in Figure \@ref(fig:q47) suggests that the residuals are approximately normally distributed, and overall the diagnostics indicate that the fitted model provides an adequate description of ts2, as shown in Figure \@ref(fig:q48).
-
-T3: The Q–Q plot in Figure \@ref(fig:q491) suggests that the residuals are approximately normally distributed. Furthermore, as shown in Figure \@ref(fig:q492), the standardized residuals fluctuate randomly around zero and the residual ACF shows no significant autocorrelation. The Ljung–Box test results also support the conclusion that the residuals behave like white noise, indicating that the fitted model provides an adequate description of the series.
+- The residuals ACF and PACF display no significant spikes outside the confidence bounds, suggesting that no substantial autocorrelation remains in the residuals, as shown in figure \@ref(fig:q43) for ts1, figure \@ref(fig:q46) for ts2, and \@ref(fig:q49) for ts3.
+- The residuals are approximately normally distributed, as can be shown from Q-Q plots in figure \@ref(fig:q44) for ts1, figure \@ref(fig:q47) for ts2, and figure \@ref(fig:q491) for ts3.
+- The Ljung-Box tests indicate that we can reject the null hypothesis that the residuals are serially correlated for lag values up to 20, as can be shown in figure \@ref(fig:q45) for ts1, figure \@ref(fig:q48) for ts2, and figure \@ref(fig:q492) for ts3.
 
 
 ```{r q4forecast, echo=FALSE, fig.cap="Forecast time series.",fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='45%'}
