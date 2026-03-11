@@ -16,8 +16,8 @@ output:
     toc: true
     toc_depth: 3
     keep_tex: true
-    includes:
-      in_header: preamble.tex
+    #includes:
+    #  in_header: preamble.tex
     pandoc_args:
       - "--lua-filter=answer.lua"
   bookdown::html_document2:
@@ -403,10 +403,10 @@ Convergence diagnostics also indicate stable estimation. In both marginal models
 To model the dependence between claim frequency and claim severity, four copula families were considered: Gaussian, Student-t, Clayton and Gumbel.
 The results are presented in table \@ref(tab:copulaPerfTable). Among these candidates, the Clayton copula provides the best fit, achieving the lowest AIC and BIC values by a clear margin. Convergence diagnostics confirm stable estimation, with a maximum gradient of $8.45 \times 10^{-6}$ and a positive definite information matrix.
 The estimated Clayton copula parameter is positive and statistically significant $\theta = 1.47$, indicating positive dependence between claim frequency and claim severity. It corresponds to a Kendall’s $\tau = \frac{\theta}{(\theta+2)} = 0.4236$, which indicates a moderate positive association between claim frequency and claim severity.
-We therefore fit **Clayton copula** with `claytonCopula(param = 1.47, dim = 2)`. for pseudo observation plot: 
-The pseudo-observations are obtained by transforming claim frequency and severity to uniform margins (0,1). The vertical bands arise because claim frequency is discrete, with most observations corresponding to one or two claims. Claim severity ranks are mainly spread across the mid-to-upper range of U2, indicating many observations with moderate claim costs rather than strong clustering in the extreme tails. The plot suggests a mild positive association, as higher claim frequencies tend to correspond to higher severity ranks. This pattern supports the use of a positively dependent copula such as the Clayton copula, while providing little visual evidence of strong upper-tail clustering that would favour a Gumbel copula. 
-for scatter plot:
-The simulated scatter plot shows simulated observations from the fitted Clayton copula with Kendall’s $\tau=0.4236$. It exhibits positive dependence with noticeable concentration in the bottom left region of the unit square, reflecting the lower-tail dependence captured by the Clayton copula. This implies that policies with relatively few claims are more likely to be associated with relatively small claim costs. Such asymmetric dependence is consistent with the empirical pattern observed in Figure X and contrasts with copulas such as the Gumbel copula, which emphasise upper-tail dependence that is not strongly supported by the data, meaning that extremely high claim counts are not systematically associated with extremely large claim amounts.
+We therefore fit **Clayton copula** with `claytonCopula(param = 1.47, dim = 2)`.
+The pseudo-observations are obtained by transforming claim frequency and severity to uniform margins (0,1) and are shown in figure \@ref(fig:claytonObs). The vertical bands arise because claim frequency is discrete, with most observations corresponding to one or two claims. Claim severity ranks are mainly spread across the mid-to-upper range of U2, indicating many observations with moderate claim costs rather than strong clustering in the extreme tails. The plot suggests a mild positive association, as higher claim frequencies tend to correspond to higher severity ranks. This pattern supports the use of a positively dependent copula such as the Clayton copula, while providing little visual evidence of strong upper-tail clustering that would favour a Gumbel copula. 
+
+The simulated scatter plot (figure \@ref(fig:claytonPlot)) shows simulated observations from the fitted Clayton copula with Kendall’s $\tau=0.4236$. It exhibits positive dependence with noticeable concentration in the bottom left region of the unit square, reflecting the lower-tail dependence captured by the Clayton copula. This implies that policies with relatively few claims are more likely to be associated with relatively small claim costs. Such asymmetric dependence is consistent with the empirical pattern observed in Figure X and contrasts with copulas such as the Gumbel copula, which emphasise upper-tail dependence that is not strongly supported by the data, meaning that extremely high claim counts are not systematically associated with extremely large claim amounts.
 
 ```{=latex}
 \newpage
@@ -478,7 +478,7 @@ knitr::kable(
 knitr::include_graphics("fig/TP_IG_qqplot.png")
 ```
 
-```{r claytonObs, echo=FALSE, fig.cap="Observed copula", out.width="60%", fig.pos="H"}
+```{r claytonObs, echo=FALSE, fig.cap="Pseudo-observation plot from the claim count and severity data", out.width="60%", fig.pos="H"}
 knitr::include_graphics("fig/ClaytonObserved.png")
 ```
 
@@ -1140,15 +1140,15 @@ pacf(resid(ts1.arima.201), main="PACF of Arima(2,0,1) residual")
 
 ```{r q44, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Q-Q plot of the residuals of fitted ARIMA(2,0,1) model for ts1", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='90%'}
 
-qqnorm(resid(ts1.arima.201))
+qqnorm(resid(ts1.arima.201), main='Q-Q plot of Arima(2,0,1) residual')
 qqline(resid(ts1.arima.201))
 
 
 ```
 
-```{r q45, echo=FALSE, message=FALSE, warning=FALSE, , fig.cap="Diagnostic plots for the fitted ARIMA(2,0,2) model for ts1, including standardized residuals, residual ACF, and Ljung–Box test results.", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='45%'}
+```{r q45, echo=FALSE, message=FALSE, warning=FALSE, , fig.cap="Diagnostic plots for the fitted ARIMA(2,0,2) model for ts1, including residual ACF and Ljung–Box test results.", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='45%'}
 
-tsdiag.Sarima(ts1.arima.201, plot = 1)
+#tsdiag.Sarima(ts1.arima.201, plot = 1)
 tsdiag.Sarima(ts1.arima.201, plot = 2)
 tsdiag.Sarima(ts1.arima.201, plot = 3)
 
@@ -1156,28 +1156,28 @@ tsdiag.Sarima(ts1.arima.201, plot = 3)
 
 ```{r q46, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="ACF vs PACF of ts2 (top), and of the residuals of fitted ARIMA(2,0,3) (bottom)", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='45%'}
 
-ts2.arima.202 <- arima(ts2, c(2,0,2))
+ts2.arima.203 <- arima(ts2, c(2,0,3))
 
 acf(ts2)
 pacf(ts2)
 
-acf(resid(ts2.arima.202))
-pacf(resid(ts2.arima.202))
+acf(resid(ts2.arima.203), main='ACF plot of Arima(2,0,) residual')
+pacf(resid(ts2.arima.203), main='ACF plot of Arima(2,0,3) residual')
 
 
 ```
 
-```{r q47, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Q-Q plot of the residuals of fitted ARIMA(2,0,2) model for ts2", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='90%'}
+```{r q47, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Q-Q plot of the residuals of fitted ARIMA(2,0,3) model for ts2", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='90%'}
 
-qqnorm(resid(ts2.arima.202))
-qqline(resid(ts2.arima.202))
+qqnorm(resid(ts2.arima.203, main='Q-Q plot of Arima(2,0,3) residual'))
+qqline(resid(ts2.arima.203))
 
 
 ```
 
-```{r q48, echo=FALSE, message=FALSE, warning=FALSE, , fig.cap="Diagnostic plots for the fitted ARIMA(2,0,2) model for ts2, including standardized residuals, residual ACF, and Ljung–Box test results.", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='45%'}
+```{r q48, echo=FALSE, message=FALSE, warning=FALSE, , fig.cap="Diagnostic plots for the fitted ARIMA(2,0,3) model for ts2, includiing residual ACF and Ljung–Box test results.", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='45%'}
 
-tsdiag.Sarima(ts2.arima.203, plot = 1)
+#tsdiag.Sarima(ts2.arima.203, plot = 1)
 tsdiag.Sarima(ts2.arima.203, plot = 2)
 tsdiag.Sarima(ts2.arima.203, plot = 3)
 
@@ -1187,8 +1187,8 @@ tsdiag.Sarima(ts2.arima.203, plot = 3)
 
 ts3.arima.210 <- arima(ts3, c(2,1,0))
 
-acf(resid(ts3.arima.210))
-pacf(resid(ts3.arima.210))
+acf(resid(ts3.arima.210), main='ACF plot of Arima(2,1,0) residual')
+pacf(resid(ts3.arima.210), main='PACF plot of Arima(2,0,3) residual')
 acf(ts3)
 pacf(ts3)
 
@@ -1196,14 +1196,14 @@ pacf(ts3)
 
 ```{r q491, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Q-Q plot of the residuals of fitted ARIMA(2,1,0) model for ts3", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='90%'}
 
-qqnorm(resid(ts3.arima.210))
+qqnorm(resid(ts3.arima.210), main='Q-Q plot of Arima(2,0,3) residual')
 qqline(resid(ts3.arima.210))
 
 ```
 
-```{r q492, echo=FALSE, message=FALSE, warning=FALSE, , fig.cap="Diagnostic plots for the fitted ARIMA(2,1,0) model for ts3, including standardized residuals, residual ACF, and Ljung–Box test results.", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='45%'}
+```{r q492, echo=FALSE, message=FALSE, warning=FALSE, , fig.cap="Diagnostic plots for the fitted ARIMA(2,1,0) model for ts3, including residual ACF and Ljung–Box test results.", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='45%'}
 
-tsdiag.Sarima(ts3.arima.210, plot = 1)
+#tsdiag.Sarima(ts3.arima.210, plot = 1)
 tsdiag.Sarima(ts3.arima.210, plot = 2)
 tsdiag.Sarima(ts3.arima.210, plot = 3)
 
@@ -1359,7 +1359,9 @@ kable(
 
 ### Modelling using Poisson and Tweedie margin {#q2-modelling}
 
- The first approach retains all observations and models claim amounts using a Tweedie distribution, which accommodates mixed distributions with probability mass at zero. However, this approach could not be implemented because the current GJRM library does not support joint regression combining Poisson frequency with Tweedie severity margins. The second approach truncates zero-claim observations and models strictly positive claim amounts using alternative continuous distributions. This is also consistent with actuarial practice, where the focus is typically on modelling positive claims for pricing and reserving purposes. The remainder of Question 2 therefore adopts the second approach.
+Our first initial approach is retains all observations and models claim amounts using a Tweedie distribution, which accommodates mixed distributions with probability mass at zero. While we can fit both Poisson and Tweedie marginal distribution separately, we encountered an error while attempting to fit a join regression combining the two. We found out later that the current GJRM library does not support fitting a copula with Tweedie and Poisson margins.
+
+The second approach truncates zero-claim observations and models strictly positive claim amounts using alternative continuous distributions. This is also consistent with actuarial practice, where the focus is typically on modelling positive claims for pricing and reserving purposes. The remainder of Question 2 analysis therefore adopts the second approach.
  
 ### Goodness-of-fit tests {#q2-gof-tests}
 Goodness-of-fit tests were conducted using the Kolmogorov–Smirnov (KS) and Cramér–von Mises (CvM) statistics. Null hypothesis is data follow the fitted marginal distribution.The KS statistic (D1=0.93707, D2=0.74048) measures the maximum difference between the empirical and theoretical cumulative distributions of zero truncated poisson and inverse gaussian, while the Cramér–von Mises statistic ($\omega_1^2 =1268.4$, $\omega_1^2=653.09$) measures the overall squared discrepancy across two distributions. Both tests reject the null hypothesis that the observed data follow the fitted distributions exactly (p-value < $2.2 \times 10^{-16}$). However, with a sample size of n = 4624, these tests are highly sensitive and may detect even minor deviations from the theoretical distribution. 
