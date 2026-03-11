@@ -782,13 +782,34 @@ Although we aware of the standard practice of inferring ARIMA parameters p and q
 3. Consider models with smaller BIC or AIC than the baseline `auto-arima` model. Since AIC as used by `auto-arima` tends to produce more complex models, we will try to find more parsimonious model by using BIC. (This is because BIC uses $k \cdot ln(n)$ as a penalty term which for our sample size $n=200$ is larger than $2k$ used by AIC). We have highlighted these candidate models in table \@ref(tab:ts1-aicbic) for ts1, table \@ref(tab:ts2-aicbic) for ts2 and table \@ref(tab:ts1-aicbic) for ts3.
 4. Check the residuals for `auto-arima` and other candidate models from step 3. The residuals should look like a white noise because any pattern should been modelled away. This can be done by checking the ACF and PACF plots of the residuals, as well as by performing Ljung-Box test. The most parsimonious model with satisfactory residual is then selected.
 
-Using the above steps we have selected the following models:
+Using the above steps, the selected final ARIMA model parameters are summarised in the table \@ref(tab:q4ParamsTable):
 
-TS1: **ARIMA(2,0,1)** is selected over ARIMA(2,0,2) suggested by auto.arima because of better AIC and BIC, i.e better fit and more parsimonious.
+```{r q4ParamsTable, echo=FALSE, tab.cap="Parameters of the final parameters", tab.show='hold', tab.align='center', tab.width=6.2, tab.height=3, tab.pos='H', out.width='45%'}
 
-TS2: **ARIMA(2,0,3)** as suggested by auto.arima is selected because other candidate models with smaller BIC all exhibit serial correlation according to Ljung-Box tests.
+q4.params.df <- data.frame(
+  Series = c('ts1', 'ts2', 'ts3'),
+  Model = c('ARIMA(2,0,1)', 'ARIMA(2,0,3)', 'ARIMA(2,1,0)'),
+  Intercept = c(0.6420, -0.0172, NA),
+  ar1 = c(0.8915, -0.6646, 0.4463),
+  ar2 = c(-0.2411, 0.0789, -0.5351),
+  ma1 = c(0.7061, -0.4994, NA),
+  ma2 = c(NA, 0.1895, NA),
+  ma3 = c(NA, 0.6096, NA),
+  Remarks = c('Better AIC and BIC than ARIMA(2,0,2)',
+              'From auto.arima',
+              'From auto.arima')
+)
 
-TS3: **ARIMA(2,1,0)** from auto.arima already has the best AIC and BIC.
+knitr::kable(
+  q4.params.df,
+  digits = 3,
+  align = "c",
+  #caption = "Top 5 ARIMA models for time series 1 ranked by BIC",
+  booktabs = TRUE,
+) |> 
+  kable_styling(latex_options = "hold_position")
+
+```
 
 
 The model residual diagnostics for the chosen models for each time series are all satisfactory:
