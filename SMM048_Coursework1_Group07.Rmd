@@ -16,8 +16,8 @@ output:
     toc: true
     toc_depth: 3
     keep_tex: true
-    includes:
-      in_header: preamble.tex
+    #includes:
+    #  in_header: preamble.tex
     pandoc_args:
       - "--lua-filter=answer.lua"
   bookdown::html_document2:
@@ -677,6 +677,7 @@ for (p in 0:5) {
 
 ts1.perfs <- data.frame(
   p = ps,
+  d = rep(0, length(ps)),
   q = qs,
   AIC = aics,
   BIC = bics
@@ -707,6 +708,7 @@ for (p in 0:5) {
 
 ts2.perfs <- data.frame(
   p = ps2,
+  d = rep(0, length(ps2)),
   q = qs2,
   AIC = aics2,
   BIC = bics2
@@ -738,6 +740,7 @@ for (p in 0:5) {
 
 ts3.perfs <- data.frame(
   p = ps3,
+  d = rep(1, length(ps3)),
   q = qs3,
   AIC = aics3,
   BIC = bics3
@@ -818,80 +821,121 @@ ts3.arima.210 <- arima(ts3, c(2,1,0))
 
 ## Figures and tables for Q4
 
-```{r ts1-aicbic, echo=FALSE, message=FALSE, warning=FALSE, tab.cap="Top 5 ARIMA models for time series 1 ranked by AIC and BIC", tab.show='hold', tab.align='center', tab.width=6.2, tab.height=3, tab.pos='H', out.width='45%'}
+```{r ts1-aicbic, echo=FALSE, message=FALSE, warning=FALSE,tab.cap="Top 5 ARIMA models for time series 1 ranked by AIC (left) and BIC (right). Highlighted in green is the final model selected over ARIMA(2,0,3) suggested by auto.arima, highlighted in yellow", tab.show='hold', tab.align='center', tab.width=6.2, tab.height=3, tab.pos='H', out.width='45%'}
 
 ts1.top5.aic <- ts1.perfs |> arrange(AIC) |> head(5)
 
-knitr::kable(
-  ts1.top5.aic,
-  digits = 3,
-  align = "c",
-  caption = "Top 5 ARIMA models for time series 1 ranked by AIC",
-  booktabs = TRUE
-) |> 
-  kable_styling(latex_options = "hold_position")
+# knitr::kable(
+#   ts1.top5.aic,
+#   digits = 3,
+#   align = "c",
+#   caption = "Top 5 ARIMA models for time series 1 ranked by AIC",
+#   booktabs = TRUE
+# ) |> 
+#   kable_styling(latex_options = "hold_position")
 
 ts1.top5.bic <- ts1.perfs |> arrange(BIC) |> head(5)
 
+# knitr::kable(
+#   ts1.top5.bic,
+#   digits = 3,
+#   align = "c",
+#   caption = "Top 5 ARIMA models for time series 1 ranked by BIC",
+#   booktabs = TRUE
+# ) |> 
+#   kable_styling(latex_options = "hold_position")
+
 knitr::kable(
-  ts1.top5.bic,
+  list(ts1.top5.aic,
+       matrix(numeric(), nrow=0, ncol=1), matrix(numeric(), nrow=0, ncol=1), matrix(numeric(), nrow=0, ncol=1),
+       matrix(numeric(), nrow=0, ncol=1), matrix(numeric(), nrow=0, ncol=1), matrix(numeric(), nrow=0, ncol=1),
+       ts1.top5.bic),
   digits = 3,
   align = "c",
-  caption = "Top 5 ARIMA models for time series 1 ranked by BIC",
+  #caption = "Top 5 ARIMA models for time series 1 ranked by BIC",
   booktabs = TRUE
 ) |> 
-  kable_styling(latex_options = "hold_position")
+  kable_styling(latex_options = "hold_position") |> 
+  row_spec(c(7), background = "green") |> 
+  row_spec(c(11), background = "yellow")
 
 ```
 
 
-```{r ts2-aicbic, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Top 5 ARIMA models for time series 2 ranked by AIC and BIC", tab.show='hold', tab.align='center', tab.width=6.2, tab.height=3, tab.pos='H', out.width='45%'}
+```{r ts2-aicbic, echo=FALSE, message=FALSE, warning=FALSE, tab.cap="Top 5 ARIMA models for time series 2 ranked by AIC (left) and BIC (right). The models highlighted in red are checked for their residuals, since they have lower BIC than ARIMA(2,0,3) suggested by auto.arima (AIC=640.74, BIC=663.83), which is not in the table. But in all these candidate models, the residuals exhibit autocorrelation according to Ljung-Box test, so none is selected as the final model.", tab.show='hold', tab.align='center', tab.width=6.2, tab.height=3, tab.pos='H', out.width='45%'}
 ts2.top5.aic <- ts2.perfs |> arrange(AIC) |> head(5)
 
-knitr::kable(
-  ts2.top5.aic,
-  digits = 3,
-  align = "c",
-  caption = "Top 5 ARIMA models for time series 2 ranked by AIC",
-  booktabs = TRUE
-) |> 
-  kable_styling(latex_options = "hold_position")
+# knitr::kable(
+#   ts2.top5.aic,
+#   digits = 3,
+#   align = "c",
+#   caption = "Top 5 ARIMA models for time series 2 ranked by AIC",
+#   booktabs = TRUE
+# ) |> 
+#   kable_styling(latex_options = "hold_position")
 
 ts2.top5.bic <- ts2.perfs |> arrange(BIC) |> head(5)
 
+# knitr::kable(
+#   ts2.top5.bic,
+#   digits = 3,
+#   align = "c",
+#   caption = "Top 5 ARIMA models for time series 2 ranked by BIC",
+#   booktabs = TRUE
+# ) |> 
+#   kable_styling(latex_options = "hold_position")
+
 knitr::kable(
-  ts2.top5.bic,
+  list(ts2.top5.aic,
+       matrix(numeric(), nrow=0, ncol=1), matrix(numeric(), nrow=0, ncol=1), matrix(numeric(), nrow=0, ncol=1),
+       matrix(numeric(), nrow=0, ncol=1), matrix(numeric(), nrow=0, ncol=1), matrix(numeric(), nrow=0, ncol=1),
+       ts2.top5.bic),
   digits = 3,
   align = "c",
-  caption = "Top 5 ARIMA models for time series 2 ranked by BIC",
+  #caption = "Top 5 ARIMA models for time series 1 ranked by BIC",
   booktabs = TRUE
 ) |> 
-  kable_styling(latex_options = "hold_position")
+  kable_styling(latex_options = "hold_position") |> 
+  row_spec(c(4, 7, 8, 9, 10, 11), background = "pink")
 
 ```
 
-```{r ts3-aicbic, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Top 5 ARIMA models for time series 3 ranked by AIC and BIC", tab.show='hold', fig.align='center', tab.width=6.2, tab.height=3, tab.pos='H', out.width='45%'}
+```{r ts3-aicbic, echo=FALSE, message=FALSE, warning=FALSE, tab.cap="Top 5 ARIMA models for time series 3 ranked by AIC and BIC, The final selected model ARIMA(2,1,3) is highlighted in green, which is also the model selected by auto.arima", tab.show='hold', tab.align='center', tab.width=6.2, tab.height=3, tab.pos='H', out.width='45%'}
 
 ts3.top5.aic <- ts3.perfs |> arrange(AIC) |> head(5)
 
-knitr::kable(
-  ts3.top5.aic,
-  digits = 3,
-  align = "c",
-  caption = "Top 5 ARIMA models for time series 3 ranked by AIC",
-  booktabs = TRUE
-) |> 
-  kable_styling(latex_options = "hold_position")
+# knitr::kable(
+#   ts3.top5.aic,
+#   digits = 3,
+#   align = "c",
+#   caption = "Top 5 ARIMA models for time series 3 ranked by AIC",
+#   booktabs = TRUE
+# ) |> 
+#   kable_styling(latex_options = "hold_position")
+
 ts3.top5.bic <- ts3.perfs |> arrange(BIC) |> head(5)
 
+# knitr::kable(
+#   ts3.top5.bic,
+#   digits = 3,
+#   align = "c",
+#   caption = "Top 5 ARIMA models for time series 3 ranked by BIC",
+#   booktabs = TRUE
+# ) |> 
+#   kable_styling(latex_options = "hold_position")
+
 knitr::kable(
-  ts3.top5.bic,
+  list(ts3.top5.aic,
+       matrix(numeric(), nrow=0, ncol=1), matrix(numeric(), nrow=0, ncol=1), matrix(numeric(), nrow=0, ncol=1),
+       matrix(numeric(), nrow=0, ncol=1), matrix(numeric(), nrow=0, ncol=1), matrix(numeric(), nrow=0, ncol=1),
+       ts3.top5.bic),
   digits = 3,
   align = "c",
-  caption = "Top 5 ARIMA models for time series 3 ranked by BIC",
+  #caption = "Top 5 ARIMA models for time series 1 ranked by BIC",
   booktabs = TRUE
 ) |> 
-  kable_styling(latex_options = "hold_position")
+  kable_styling(latex_options = "hold_position") |> 
+  row_spec(c(1, 7), background = "green")
 
 ```
 
@@ -925,10 +969,10 @@ plot(ts3, type="l", col="darkgreen", lwd=1.5,
 
 ```{r q42, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 
-library(tseries)
-library(forecast)
-library(knitr)
-
+# library(tseries)
+# library(forecast)
+# library(knitr)
+# 
 dat <- read.table("ARIMAsim2.dat", header = TRUE)
 
 ts1 <- ts(dat$ts1)
@@ -957,53 +1001,56 @@ kable(results, digits = 3, caption = "ADF tests and suggested ARIMA models") %>%
   kable_styling(latex_options = c("hold_position"))
 ```
 
-```{r q43, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="ACF vs PACF", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='45%'}
+```{r q43, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="ACF vs PACF of ts1 (top), and of the residuals of fitted ARIMA(2,0,1) (bottom)", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='45%'}
 
-ts1.arima.202 <- arima(ts1, c(2,0,2))
+ts1.arima.201 <- arima(ts1, c(2,0,1))
 
-acf(resid(ts1.arima.202))
-pacf(resid(ts1.arima.202))
 acf(ts1)
 pacf(ts1)
+acf(resid(ts1.arima.201))
+pacf(resid(ts1.arima.201))
+
 
 ```
 
-```{r q44, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="QQPLOT", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='90%'}
+```{r q44, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Q-Q plot of the residuals of fitted ARIMA(2,0,1) model for ts1", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='90%'}
 
-qqnorm(resid(ts1.arima.202))
-qqline(resid(ts1.arima.202))
+qqnorm(resid(ts1.arima.201))
+qqline(resid(ts1.arima.201))
 
 
 ```
 
 ```{r q45, echo=FALSE, message=FALSE, warning=FALSE, , fig.cap="Diagnostic plots for the fitted ARIMA(2,0,2) model for ts1, including standardized residuals, residual ACF, and Ljung–Box test results.", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='45%'}
 
-tsdiag.Sarima(ts1.arima.202, plot = 1)
-tsdiag.Sarima(ts1.arima.202, plot = 2)
-tsdiag.Sarima(ts1.arima.202, plot = 3)
+tsdiag.Sarima(ts1.arima.201, plot = 1)
+tsdiag.Sarima(ts1.arima.201, plot = 2)
+tsdiag.Sarima(ts1.arima.201, plot = 3)
 
 ```
 
-```{r q46, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="ACF vs PACF", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='45%'}
+```{r q46, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="ACF vs PACF of ts2 (top), and of the residuals of fitted ARIMA(2,0,3) (bottom)", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='45%'}
 
-ts2.arima.203 <- arima(ts2, c(2,0,3))
+ts2.arima.202 <- arima(ts2, c(2,0,2))
 
-acf(resid(ts2.arima.203))
-pacf(resid(ts2.arima.203))
 acf(ts2)
 pacf(ts2)
 
-```
-
-```{r q47, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="QQPLOT", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='90%'}
-
-qqnorm(resid(ts2.arima.203))
-qqline(resid(ts2.arima.203))
+acf(resid(ts2.arima.202))
+pacf(resid(ts2.arima.202))
 
 
 ```
 
-```{r q48, echo=FALSE, message=FALSE, warning=FALSE, , fig.cap="Diagnostic plots for the fitted ARIMA(2,0,3) model for ts2, including standardized residuals, residual ACF, and Ljung–Box test results.", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='45%'}
+```{r q47, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Q-Q plot of the residuals of fitted ARIMA(2,0,2) model for ts2", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='90%'}
+
+qqnorm(resid(ts2.arima.202))
+qqline(resid(ts2.arima.202))
+
+
+```
+
+```{r q48, echo=FALSE, message=FALSE, warning=FALSE, , fig.cap="Diagnostic plots for the fitted ARIMA(2,0,2) model for ts2, including standardized residuals, residual ACF, and Ljung–Box test results.", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='45%'}
 
 tsdiag.Sarima(ts2.arima.203, plot = 1)
 tsdiag.Sarima(ts2.arima.203, plot = 2)
@@ -1011,7 +1058,7 @@ tsdiag.Sarima(ts2.arima.203, plot = 3)
 
 ```
 
-```{r q49, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="ACF vs PACF", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='45%'}
+```{r q49, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="ACF vs PACF of ts3 (top), and of the residuals of fitted ARIMA(2,1,0) (bottom)", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='45%'}
 
 ts3.arima.210 <- arima(ts3, c(2,1,0))
 
@@ -1022,7 +1069,7 @@ pacf(ts3)
 
 ```
 
-```{r q491, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="QQPLOT", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='90%'}
+```{r q491, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Q-Q plot of the residuals of fitted ARIMA(2,1,0) model for ts3", fig.show='hold', fig.align='center', fig.width=6.2, fig.height=3, fig.pos='H', out.width='90%'}
 
 qqnorm(resid(ts3.arima.210))
 qqline(resid(ts3.arima.210))
